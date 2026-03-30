@@ -1,0 +1,177 @@
+@using PhishGuard.Models
+@{
+    ViewData["Title"] = "Security Training";
+    var training = ViewBag.Training as PhishGuard.Models.EmployeeTraining;
+    var pending = ViewBag.Pending as List<SimulationEmail> ?? new();
+    var history = ViewBag.History as List<SimulationEmail> ?? new();
+}
+
+<!-- Training Stats -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Security Training</h2>
+    <div>
+        <a asp-action="Leaderboard" class="btn btn-outline-primary me-2">Leaderboard</a>
+        <form asp-action="SendSimulation" method="post" class="d-inline">
+            <button type="submit" class="btn btn-warning">Send Me a Test Phish</button>
+        </form>
+    </div>
+</div>
+
+@if (training != null)
+{
+    <div class="row mb-4">
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-primary">@training.ScorePoints</h3>
+                    <small class="text-muted">Points</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h3>@training.CurrentStreak</h3>
+                    <small class="text-muted">Current Streak</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h3>@training.BestStreak</h3>
+                    <small class="text-muted">Best Streak</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-success">@training.TotalCorrectlyReported</h3>
+                    <small class="text-muted">Caught</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-danger">@training.TotalClicked</h3>
+                    <small class="text-muted">Missed</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    @{
+                        var diffColor = training.CurrentDifficulty switch
+                        {
+                            Difficulty.Easy => "text-success",
+                            Difficulty.Medium => "text-warning",
+                            Difficulty.Hard => "text-danger",
+                            Difficulty.Expert => "text-purple",
+                            _ => ""
+                        };
+                    }
+                    <h3 class="@diffColor">@training.CurrentDifficulty</h3>
+                    <small class="text-muted">Difficulty</small>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Pending Simulations -->
+@if (pending.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning bg-opacity-25">
+            <h5 class="mb-0">Incoming Emails — Review Required (@pending.Count)</h5>
+        </div>
+        <div class="list-group list-group-flush">
+            @foreach (var sim in pending)
+            {
+                <a asp-action="ViewSimulation" asp-route-id="@sim.SimulationId" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>@sim.Campaign.TemplateSender</strong>
+                            <br />
+                            <span>@sim.Campaign.TemplateSubject</span>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">@sim.SentAt.ToString("MMM dd, h:mm tt")</small>
+                            <br />
+                            <span class="badge bg-info">New</span>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-body text-center py-4 text-muted">
+            <h5>No pending test emails</h5>
+            <p>Click "Send Me a Test Phish" to receive a simulated phishing email and practice your detection skills.</p>
+        </div>
+    </div>
+}
+
+<!-- History -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Training History</h5>
+    </div>
+    @if (history.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Campaign</th>
+                        <th>Difficulty</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sim in history)
+                    {
+                        var resultBadge = sim.Result switch
+                        {
+                            SimulationResult.Reported => "bg-success",
+                            SimulationResult.Clicked => "bg-danger",
+                            SimulationResult.NoAction => "bg-secondary",
+                            _ => "bg-info"
+                        };
+                        var resultText = sim.Result switch
+                        {
+                            SimulationResult.Reported => "Caught it!",
+                            SimulationResult.Clicked => "Fell for it",
+                            SimulationResult.NoAction => "Ignored",
+                            _ => "Pending"
+                        };
+                        <tr>
+                            <td>@sim.SentAt.ToString("MMM dd, yyyy")</td>
+                            <td>@sim.Campaign.CampaignName</td>
+                            <td>
+                                <span class="badge bg-@(sim.Campaign.Difficulty == Difficulty.Easy ? "success" : sim.Campaign.Difficulty == Difficulty.Medium ? "warning" : sim.Campaign.Difficulty == Difficulty.Hard ? "danger" : "dark")">
+                                    @sim.Campaign.Difficulty
+                                </span>
+                            </td>
+                            <td><span class="badge @resultBadge">@resultText</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center text-muted">
+            No training history yet. Start by receiving your first test phish!
+        </div>
+    }
+</div>

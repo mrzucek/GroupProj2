@@ -1,0 +1,104 @@
+@model List<PhishGuard.Services.LeaderboardEntry>
+@{
+    ViewData["Title"] = "Leaderboard";
+    var currentId = (int)ViewBag.CurrentEmployeeId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Security Leaderboard</h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">Back to Training</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5 text-muted">
+            <h5>No training data yet</h5>
+            <p>Start training exercises to appear on the leaderboard!</p>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Top 3 Podium -->
+    @if (Model.Count >= 3)
+    {
+        <div class="row mb-4 justify-content-center">
+            @for (int i = 0; i < Math.Min(3, Model.Count); i++)
+            {
+                var entry = Model[i];
+                var podiumClass = i switch { 0 => "border-warning", 1 => "border-secondary", _ => "border-info" };
+                var medal = i switch { 0 => "1st", 1 => "2nd", _ => "3rd" };
+                var isMe = entry.EmployeeId == currentId;
+
+                <div class="col-md-4">
+                    <div class="card text-center shadow-sm @podiumClass border-3 @(isMe ? "bg-light" : "")">
+                        <div class="card-body">
+                            <h4 class="mb-0">@medal</h4>
+                            <h5 class="mt-2 @(isMe ? "text-primary" : "")">
+                                @entry.DisplayName @(isMe ? "(You)" : "")
+                            </h5>
+                            @if (entry.Department != null)
+                            {
+                                <small class="text-muted">@entry.Department</small>
+                            }
+                            <h3 class="text-primary mt-2">@entry.ScorePoints pts</h3>
+                            <small>Best streak: @entry.BestStreak | Detection rate: @entry.ReportRate%</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Full Table -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Rank</th>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Points</th>
+                        <th>Streak</th>
+                        <th>Difficulty</th>
+                        <th>Caught</th>
+                        <th>Missed</th>
+                        <th>Detection Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        var entry = Model[i];
+                        var isMe = entry.EmployeeId == currentId;
+                        <tr class="@(isMe ? "table-primary" : "")">
+                            <td><strong>#@(i + 1)</strong></td>
+                            <td>
+                                @entry.DisplayName
+                                @if (isMe) { <span class="badge bg-primary">You</span> }
+                            </td>
+                            <td>@(entry.Department ?? "-")</td>
+                            <td><strong>@entry.ScorePoints</strong></td>
+                            <td>@entry.CurrentStreak (best: @entry.BestStreak)</td>
+                            <td>
+                                <span class="badge bg-@(entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Easy ? "success" : entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Medium ? "warning" : entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Hard ? "danger" : "dark")">
+                                    @entry.CurrentDifficulty
+                                </span>
+                            </td>
+                            <td class="text-success">@entry.TotalReported</td>
+                            <td class="text-danger">@entry.TotalClicked</td>
+                            <td>
+                                @{
+                                    var rateColor = entry.ReportRate >= 80 ? "text-success" : entry.ReportRate >= 50 ? "text-warning" : "text-danger";
+                                }
+                                <strong class="@rateColor">@entry.ReportRate%</strong>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

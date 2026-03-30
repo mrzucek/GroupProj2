@@ -1,0 +1,251 @@
+@model AdminDashboardViewModel
+@using PhishGuard.Models
+@using PhishGuard.Controllers
+@{ ViewData["Title"] = "Admin Dashboard"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Admin Dashboard</h2>
+    <div>
+        <a asp-action="ScoringRules" class="btn btn-outline-secondary me-1">Scoring Rules</a>
+        <a asp-action="ThreatDatabase" class="btn btn-outline-secondary me-1">Threat Database</a>
+        <form asp-action="SendCompanySimulation" method="post" class="d-inline">
+            <button type="submit" class="btn btn-warning"
+                onclick="return confirm('Send simulated phishing emails to all employees?')">
+                Send Company-Wide Simulation
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Company Security Score -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center border-0">
+            <div class="card-body py-4">
+                @{
+                    var scoreColor = Model.CompanySecurityScore >= 80 ? "text-success" :
+                        Model.CompanySecurityScore >= 50 ? "text-warning" : "text-danger";
+                }
+                <h1 class="display-4 @scoreColor">@Model.CompanySecurityScore%</h1>
+                <h5 class="text-muted">Company Security Score</h5>
+                <small class="text-muted">Based on simulation detection rate</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="row h-100">
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h3>@Model.TotalEmployees</h3>
+                        <small class="text-muted">Employees</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h3>@Model.TotalEmailsScanned</h3>
+                        <small class="text-muted">Emails Scanned</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="text-danger">@Model.TotalBlocked</h3>
+                        <small class="text-muted">Blocked</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="text-warning">@Model.TotalWarnings</h3>
+                        <small class="text-muted">Warnings</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Training & Threat Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3>@Model.TotalSimulationsSent</h3>
+                <small class="text-muted">Simulations Sent</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-success">@Model.SimulationsReported</h3>
+                <small class="text-muted">Caught by Employees</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-danger">@Model.SimulationsClicked</h3>
+                <small class="text-muted">Clicked by Employees</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3>@Model.ActiveThreatIndicators</h3>
+                <small class="text-muted">Threat Indicators</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Reports -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            Phishing Reports
+            @if (Model.PendingReports > 0)
+            {
+                <span class="badge bg-danger ms-2">@Model.PendingReports pending</span>
+            }
+        </h5>
+    </div>
+    @if (Model.RecentReports.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Reported By</th>
+                        <th>Email Subject</th>
+                        <th>Sender</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model.RecentReports)
+                    {
+                        <tr class="@(report.IsConfirmedPhishing == null ? "table-warning" : "")">
+                            <td>@report.CreatedAt.ToString("MMM dd")</td>
+                            <td>@report.Reporter.DisplayName</td>
+                            <td>@(report.Email.Subject?.Substring(0, Math.Min(40, report.Email.Subject?.Length ?? 0)))...</td>
+                            <td><small>@report.Email.SenderAddress</small></td>
+                            <td><small>@(report.ReportReason ?? "-")</small></td>
+                            <td>
+                                @if (report.IsConfirmedPhishing == null)
+                                {
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                }
+                                else if (report.IsConfirmedPhishing == true)
+                                {
+                                    <span class="badge bg-danger">Confirmed Phishing</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Not Phishing</span>
+                                }
+                            </td>
+                            <td>
+                                @if (report.IsConfirmedPhishing == null)
+                                {
+                                    <form asp-action="ReviewReport" method="post" class="d-inline">
+                                        <input type="hidden" name="reportId" value="@report.ReportId" />
+                                        <button type="submit" name="isPhishing" value="true" class="btn btn-sm btn-danger">Confirm</button>
+                                        <button type="submit" name="isPhishing" value="false" class="btn btn-sm btn-outline-secondary">Reject</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Reviewed by @(report.Reviewer?.DisplayName ?? "N/A")</small>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card-body text-center text-muted">No reports yet.</div>
+    }
+</div>
+
+<!-- Employee Performance -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Employee Performance</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Points</th>
+                            <th>Difficulty</th>
+                            <th>Caught</th>
+                            <th>Missed</th>
+                            <th>Detection Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in Model.EmployeeStats)
+                        {
+                            var rate = t.TotalSimulationsReceived > 0
+                                ? Math.Round((decimal)t.TotalCorrectlyReported / t.TotalSimulationsReceived * 100, 1)
+                                : 0;
+                            var rateColor = rate >= 80 ? "text-success" : rate >= 50 ? "text-warning" : "text-danger";
+                            <tr>
+                                <td>@t.Employee.DisplayName</td>
+                                <td><strong>@t.ScorePoints</strong></td>
+                                <td>
+                                    <span class="badge bg-@(t.CurrentDifficulty == Difficulty.Easy ? "success" : t.CurrentDifficulty == Difficulty.Medium ? "warning" : t.CurrentDifficulty == Difficulty.Hard ? "danger" : "dark")">
+                                        @t.CurrentDifficulty
+                                    </span>
+                                </td>
+                                <td class="text-success">@t.TotalCorrectlyReported</td>
+                                <td class="text-danger">@t.TotalClicked</td>
+                                <td><strong class="@rateColor">@rate%</strong></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Top Blocked Senders</h5>
+            </div>
+            @if (Model.TopPhishingSenders.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var sender in Model.TopPhishingSenders)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <small class="text-break">@sender.SenderAddress</small>
+                            <span class="badge bg-danger">@sender.Count</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="card-body text-center text-muted">No blocked senders yet.</div>
+            }
+        </div>
+    </div>
+</div>

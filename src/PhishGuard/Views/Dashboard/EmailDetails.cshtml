@@ -1,0 +1,64 @@
+@model PhishGuard.Models.Email
+@{ ViewData["Title"] = "Email Details"; }
+
+<a asp-action="Index" class="btn btn-outline-secondary mb-3">Back to Dashboard</a>
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h5>@Model.Subject</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">From</dt>
+            <dd class="col-sm-9">@(Model.SenderDisplayName ?? Model.SenderAddress) &lt;@Model.SenderAddress&gt;</dd>
+
+            <dt class="col-sm-3">Received</dt>
+            <dd class="col-sm-9">@Model.ReceivedAt.ToString("f")</dd>
+
+            <dt class="col-sm-3">Overall Score</dt>
+            <dd class="col-sm-9"><span class="badge @(Model.Classification == PhishGuard.Models.EmailClassification.Blocked ? "bg-danger" : Model.Classification == PhishGuard.Models.EmailClassification.Warning ? "bg-warning text-dark" : "bg-success")">@Model.OverallScore / 100 - @Model.Classification</span></dd>
+
+            <dt class="col-sm-3">Preview</dt>
+            <dd class="col-sm-9">@Model.BodyPreview</dd>
+        </dl>
+
+        <h6>Score Breakdown</h6>
+        <table class="table table-sm">
+            <thead><tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Details</th></tr></thead>
+            <tbody>
+                @foreach (var score in Model.Scores)
+                {
+                    <tr>
+                        <td>@score.Dimension</td>
+                        <td>@score.Score</td>
+                        <td>@score.Weight</td>
+                        <td>@score.Details</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (Model.Urls.Any())
+        {
+            <h6>URLs Found</h6>
+            <table class="table table-sm">
+                <thead><tr><th>URL</th><th>Domain</th><th>Safe</th><th>Result</th></tr></thead>
+                <tbody>
+                    @foreach (var url in Model.Urls)
+                    {
+                        <tr>
+                            <td class="text-break">@url.OriginalUrl</td>
+                            <td>@url.Domain</td>
+                            <td>
+                                @if (url.IsSafe == true) { <span class="badge bg-success">Safe</span> }
+                                else if (url.IsSafe == false) { <span class="badge bg-danger">Unsafe</span> }
+                                else { <span class="badge bg-secondary">Unchecked</span> }
+                            </td>
+                            <td>@url.SafeBrowsingResult</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

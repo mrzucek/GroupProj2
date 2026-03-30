@@ -1,0 +1,198 @@
+@model PhishGuard.Models.ViewModels.DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Welcome, @Model.Employee.DisplayName</h2>
+    <div>
+        <span class="badge bg-primary fs-6 me-2">@Model.Stats.TrainingPoints pts | Streak: @Model.Stats.CurrentStreak</span>
+        <form asp-controller="Demo" asp-action="SeedTestEmails" method="post" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-info">Seed Test Emails</button>
+        </form>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-primary">@Model.Stats.TotalEmails</h3>
+                <small class="text-muted">Total Scanned</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-danger">@Model.Stats.BlockedCount</h3>
+                <small class="text-muted">Blocked</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-warning">@Model.Stats.WarningCount</h3>
+                <small class="text-muted">Warnings</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 shadow-sm">
+            <div class="card-body">
+                <h3 class="text-success">@Model.Stats.SafeCount</h3>
+                <small class="text-muted">Safe</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email List -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Recent Emails</h5>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button>
+            <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="blocked">Blocked</button>
+            <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="warning">Warning</button>
+            <button class="btn btn-sm btn-outline-success filter-btn" data-filter="safe">Safe</button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.RecentEmails.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <h5>No emails scanned yet</h5>
+                <p>Emails will appear here once the system starts analyzing incoming messages.</p>
+            </div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var email in Model.RecentEmails)
+                {
+                    var borderClass = email.Classification switch
+                    {
+                        PhishGuard.Models.EmailClassification.Blocked => "border-start border-danger border-4",
+                        PhishGuard.Models.EmailClassification.Warning => "border-start border-warning border-4",
+                        _ => "border-start border-success border-4"
+                    };
+                    var badgeClass = email.Classification switch
+                    {
+                        PhishGuard.Models.EmailClassification.Blocked => "bg-danger",
+                        PhishGuard.Models.EmailClassification.Warning => "bg-warning text-dark",
+                        _ => "bg-success"
+                    };
+
+                    <div class="list-group-item @borderClass email-item" data-classification="@email.Classification.ToString().ToLower()">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="badge @badgeClass me-2">@email.Classification</span>
+                                    <strong>@(email.SenderDisplayName ?? email.SenderAddress)</strong>
+                                    @if (email.SenderDisplayName != null)
+                                    {
+                                        <small class="text-muted ms-2">&lt;@email.SenderAddress&gt;</small>
+                                    }
+                                    <small class="text-muted ms-auto">@email.ReceivedAt.ToString("MMM dd, yyyy h:mm tt")</small>
+                                </div>
+                                <div class="mb-1">@email.Subject</div>
+
+                                <!-- Context-Aware Warnings -->
+                                @if (email.Classification != PhishGuard.Models.EmailClassification.Safe && email.WarningReasons.Any())
+                                {
+                                    <div class="alert alert-@(email.Classification == PhishGuard.Models.EmailClassification.Blocked ? "danger" : "warning") py-1 px-2 mb-1 small">
+                                        <strong>Why this was flagged:</strong>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach (var reason in email.WarningReasons)
+                                            {
+                                                <li>@reason</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+
+                                <!-- Score Breakdown -->
+                                @if (email.Scores.Any(s => s.Score > 0))
+                                {
+                                    <div class="mt-1">
+                                        @foreach (var score in email.Scores.Where(s => s.Score > 0))
+                                        {
+                                            var barColor = score.Score >= 70 ? "bg-danger" : score.Score >= 30 ? "bg-warning" : "bg-info";
+                                            <div class="d-flex align-items-center mb-1">
+                                                <small class="text-muted me-2" style="min-width:130px">@score.Dimension</small>
+                                                <div class="progress flex-grow-1" style="height: 8px">
+                                                    <div class="progress-bar @barColor" style="width: @score.Score%"></div>
+                                                </div>
+                                                <small class="ms-2 text-muted">@score.Score</small>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Report Button -->
+                            <div class="ms-3">
+                                @if (email.IsReported)
+                                {
+                                    <span class="badge bg-secondary">Reported</span>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#reportModal-@email.EmailId">
+                                        Report Phishing
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report Modal -->
+                    @if (!email.IsReported)
+                    {
+                        <div class="modal fade" id="reportModal-@email.EmailId" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form asp-controller="Dashboard" asp-action="ReportPhishing" method="post">
+                                        <input type="hidden" name="emailId" value="@email.EmailId" />
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Report Phishing Email</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Report "<strong>@email.Subject</strong>" from <strong>@email.SenderAddress</strong> as a phishing attempt?</p>
+                                            <div class="mb-3">
+                                                <label class="form-label">Why do you think this is phishing? (optional)</label>
+                                                <textarea name="reason" class="form-control" rows="3" placeholder="e.g., Suspicious link, unexpected request, unknown sender..."></textarea>
+                                            </div>
+                                            <p class="text-muted small">Your report will be reviewed by an admin. If confirmed as phishing, you'll earn 10 points!</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-danger">Report as Phishing</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const filter = this.dataset.filter;
+            document.querySelectorAll('.email-item').forEach(item => {
+                item.style.display = (filter === 'all' || item.dataset.classification === filter) ? '' : 'none';
+            });
+        });
+    });
+</script>
+}

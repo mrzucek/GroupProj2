@@ -1,0 +1,44 @@
+@model PhishGuard.Models.SimulationEmail
+@{ ViewData["Title"] = Model.Campaign.TemplateSubject; }
+
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">Back to Training</a>
+
+<!-- Simulated Email Display — looks like a real email -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white">
+        <div class="d-flex justify-content-between">
+            <div>
+                <strong>@Model.Campaign.TemplateSender</strong>
+                <br />
+                <small class="text-muted">To: me</small>
+            </div>
+            <small class="text-muted">@Model.SentAt.ToString("MMM dd, yyyy h:mm tt")</small>
+        </div>
+        <h5 class="mt-2 mb-0">@Model.Campaign.TemplateSubject</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-4" style="white-space: pre-wrap; line-height: 1.7;">@Model.Campaign.TemplateBody</div>
+
+        @if (Model.Result == PhishGuard.Models.SimulationResult.Pending)
+        {
+            <hr />
+            <div class="d-flex gap-2">
+                <form asp-action="SimulationClicked" asp-route-id="@Model.SimulationId" method="post">
+                    <button type="submit" class="btn btn-primary">Click Link in Email</button>
+                </form>
+                <form asp-action="SimulationReported" asp-route-id="@Model.SimulationId" method="post">
+                    <button type="submit" class="btn btn-outline-danger">Report as Phishing</button>
+                </form>
+            </div>
+            <p class="text-muted small mt-2">
+                Treat this like a real email. If you think it's legitimate, click the link. If you think it's phishing, report it.
+            </p>
+        }
+        else
+        {
+            <div class="alert alert-info">
+                You've already responded to this simulation. <a asp-action="SimulationResult" asp-route-id="@Model.SimulationId">View result</a>
+            </div>
+        }
+    </div>
+</div>

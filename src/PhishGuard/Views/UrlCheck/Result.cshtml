@@ -1,0 +1,112 @@
+@model PhishGuard.Models.ViewModels.UrlCheckViewModel
+@{ ViewData["Title"] = "URL Check Result"; }
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <!-- Result Card -->
+        <div class="card shadow-sm mb-4 @(Model.IsSafe ? "border-success" : "border-danger") border-3">
+            <div class="card-body p-4 text-center">
+                @if (Model.IsSafe)
+                {
+                    <h2 class="text-success mb-2">This URL appears safe</h2>
+                    <p class="text-muted">No significant threats detected. Exercise normal caution.</p>
+                }
+                else
+                {
+                    <h2 class="text-danger mb-2">Warning: This URL may be dangerous</h2>
+                    <p class="text-muted">Our analysis found potential threats. We recommend not visiting this link.</p>
+                }
+
+                <!-- Threat Score Bar -->
+                <div class="my-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Safe</small>
+                        <strong>Threat Score: @Model.ThreatScore / 100</strong>
+                        <small>Dangerous</small>
+                    </div>
+                    <div class="progress" style="height: 20px">
+                        @{
+                            var barColor = Model.ThreatScore >= 70 ? "bg-danger" : Model.ThreatScore >= 30 ? "bg-warning" : "bg-success";
+                        }
+                        <div class="progress-bar @barColor" style="width: @Model.ThreatScore%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Analysis Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">URL Checked</dt>
+                    <dd class="col-sm-8 text-break">@Model.Url</dd>
+
+                    <dt class="col-sm-4">Domain</dt>
+                    <dd class="col-sm-8">@Model.Domain</dd>
+
+                    @if (Model.FinalUrl != null && Model.FinalUrl != Model.Url)
+                    {
+                        <dt class="col-sm-4">Redirects To</dt>
+                        <dd class="col-sm-8 text-break">
+                            <span class="badge bg-warning text-dark me-1">Redirect</span>
+                            @Model.FinalUrl
+                        </dd>
+                    }
+
+                    @if (Model.TriggersDownload)
+                    {
+                        <dt class="col-sm-4">File Download</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-danger">This link triggers a file download</span>
+                        </dd>
+                    }
+                </dl>
+            </div>
+        </div>
+
+        <!-- Findings -->
+        @if (Model.Reasons.Any())
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Findings</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var reason in Model.Reasons)
+                    {
+                        <li class="list-group-item">
+                            <span class="text-danger me-2">&#9888;</span>
+                            @reason
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center text-muted">
+                    No issues found during analysis.
+                </div>
+            </div>
+        }
+
+        <!-- Actions -->
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">Check Another URL</a>
+            @if (Model.EmailId.HasValue)
+            {
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">Back to Dashboard</a>
+            }
+            @if (Model.IsSafe)
+            {
+                <a href="@Model.Url" target="_blank" rel="noopener noreferrer" class="btn btn-outline-success">
+                    Proceed to URL
+                </a>
+            }
+        </div>
+    </div>
+</div>
