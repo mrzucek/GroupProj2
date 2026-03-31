@@ -1,33 +1,31 @@
 @model PhishGuard.Models.ViewModels.LoginViewModel
 @{ ViewData["Title"] = "Login"; }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h2 class="card-title text-center mb-4">PhishGuard Login</h2>
+<div class="pn-auth-wrapper">
+    <div class="pn-auth-card">
+        <div class="pn-auth-header">
+            <span class="pn-auth-brand">Phish<span class="pn-auth-accent">NET</span></span>
+            <p class="pn-auth-sub">Sign in to your account</p>
+        </div>
 
-                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div asp-validation-summary="All" class="text-danger mb-3" style="font-size:0.85rem;"></div>
 
-                <form asp-action="Login" method="post">
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
-                        <input asp-for="Email" class="form-control" autofocus />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
-                </form>
-
-                <hr />
-                <p class="text-center mb-0">
-                    Don't have an account? <a asp-action="Register">Register here</a>
-                </p>
+        <form asp-action="Login" method="post">
+            <div class="pn-form-group">
+                <label asp-for="Email" class="pn-label">Email</label>
+                <input asp-for="Email" class="pn-input" autofocus />
+                <span asp-validation-for="Email" class="text-danger" style="font-size:0.8rem;"></span>
             </div>
+            <div class="pn-form-group">
+                <label asp-for="Password" class="pn-label">Password</label>
+                <input asp-for="Password" type="password" class="pn-input" />
+                <span asp-validation-for="Password" class="text-danger" style="font-size:0.8rem;"></span>
+            </div>
+            <button type="submit" class="btn pn-btn w-100" style="padding:10px;">Sign in</button>
+        </form>
+
+        <div class="pn-auth-footer">
+            Don't have an account? <a asp-action="Register" class="pn-auth-link">Register</a>
         </div>
     </div>
 </div>

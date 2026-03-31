@@ -1,8 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="pn-auth-wrapper">
+    <div style="text-align:center;">
+        <span style="font-size:2rem;font-weight:800;color:#fff;">Phish<span style="color:var(--pn-teal);">NET</span></span>
+        <p style="color:rgba(255,255,255,0.5);margin:8px 0 24px;font-size:0.95rem;">Enterprise phishing detection &amp; employee training platform</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a asp-controller="Account" asp-action="Login" class="btn pn-btn" style="padding:10px 28px;">Sign in</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-outline-light" style="padding:10px 28px;">Register</a>
+        </div>
+    </div>
 </div>

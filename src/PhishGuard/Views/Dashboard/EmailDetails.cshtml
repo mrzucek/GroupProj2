@@ -1,64 +1,132 @@
 @model PhishGuard.Models.Email
 @{ ViewData["Title"] = "Email Details"; }
 
-<a asp-action="Index" class="btn btn-outline-secondary mb-3">Back to Dashboard</a>
-
-<div class="card shadow-sm">
-    <div class="card-header">
-        <h5>@Model.Subject</h5>
+<div class="pn-page" style="max-width:900px;">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">@(Model.Subject ?? "(no subject)")</h1>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to Inbox</a>
+        </div>
     </div>
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">From</dt>
-            <dd class="col-sm-9">@(Model.SenderDisplayName ?? Model.SenderAddress) &lt;@Model.SenderAddress&gt;</dd>
 
-            <dt class="col-sm-3">Received</dt>
-            <dd class="col-sm-9">@Model.ReceivedAt.ToString("f")</dd>
-
-            <dt class="col-sm-3">Overall Score</dt>
-            <dd class="col-sm-9"><span class="badge @(Model.Classification == PhishGuard.Models.EmailClassification.Blocked ? "bg-danger" : Model.Classification == PhishGuard.Models.EmailClassification.Warning ? "bg-warning text-dark" : "bg-success")">@Model.OverallScore / 100 - @Model.Classification</span></dd>
-
-            <dt class="col-sm-3">Preview</dt>
-            <dd class="col-sm-9">@Model.BodyPreview</dd>
-        </dl>
-
-        <h6>Score Breakdown</h6>
-        <table class="table table-sm">
-            <thead><tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Details</th></tr></thead>
-            <tbody>
-                @foreach (var score in Model.Scores)
-                {
-                    <tr>
-                        <td>@score.Dimension</td>
-                        <td>@score.Score</td>
-                        <td>@score.Weight</td>
-                        <td>@score.Details</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        @if (Model.Urls.Any())
-        {
-            <h6>URLs Found</h6>
-            <table class="table table-sm">
-                <thead><tr><th>URL</th><th>Domain</th><th>Safe</th><th>Result</th></tr></thead>
-                <tbody>
-                    @foreach (var url in Model.Urls)
+    <!-- Email Header -->
+    <div class="pn-card">
+        <div class="pn-card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <div style="font-weight:600;">@(Model.SenderDisplayName ?? Model.SenderAddress)</div>
+                    @if (Model.SenderDisplayName != null)
                     {
-                        <tr>
-                            <td class="text-break">@url.OriginalUrl</td>
-                            <td>@url.Domain</td>
-                            <td>
-                                @if (url.IsSafe == true) { <span class="badge bg-success">Safe</span> }
-                                else if (url.IsSafe == false) { <span class="badge bg-danger">Unsafe</span> }
-                                else { <span class="badge bg-secondary">Unchecked</span> }
-                            </td>
-                            <td>@url.SafeBrowsingResult</td>
-                        </tr>
+                        <div class="text-muted" style="font-size:0.82rem;">&lt;@Model.SenderAddress&gt;</div>
                     }
-                </tbody>
-            </table>
-        }
+                </div>
+                <div class="text-end">
+                    <div class="text-muted" style="font-size:0.82rem;">@Model.ReceivedAt.ToString("MMM d, yyyy 'at' h:mm tt")</div>
+                    @{
+                        var tagClass = Model.Classification switch
+                        {
+                            PhishGuard.Models.EmailClassification.Blocked => "inbox-tag--danger",
+                            PhishGuard.Models.EmailClassification.Warning => "inbox-tag--warning",
+                            _ => "inbox-tag--safe"
+                        };
+                    }
+                    <span class="inbox-tag @tagClass" style="margin-top:4px;display:inline-block;">@Model.Classification</span>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Body Preview -->
+    @if (!string.IsNullOrEmpty(Model.BodyPreview))
+    {
+        <div class="pn-card">
+            <div class="pn-card-body" style="line-height:1.7;color:#444;">
+                @Model.BodyPreview
+            </div>
+        </div>
+    }
+
+    <!-- PhishNET Security Score -->
+    <div class="pn-card">
+        <div class="pn-card-header">
+            <h2 class="pn-card-title">PhishNET Security Score</h2>
+            @{
+                var overallColor = Model.OverallScore >= 70 ? "#dc3545" : Model.OverallScore >= 30 ? "#d4920a" : "#1ca8c7";
+                var overallLabel = Model.OverallScore >= 70 ? "High Risk" : Model.OverallScore >= 30 ? "Suspicious" : "Low Risk";
+            }
+            <span style="font-weight:700;color:@overallColor;font-size:0.9rem;">@((int)Model.OverallScore) / 100 &mdash; @overallLabel</span>
+        </div>
+        <div class="pn-card-body">
+            <div class="table-responsive">
+                <table class="pn-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Score</th>
+                            <th>Weight</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var score in Model.Scores)
+                        {
+                            var rowColor = score.Score >= 70 ? "rgba(220,53,69,0.06)" : score.Score >= 30 ? "rgba(212,146,10,0.06)" : "";
+                            <tr style="background:@rowColor;">
+                                <td><strong>@score.Dimension</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="inbox-score-bar" style="width:80px;">
+                                            <div class="inbox-score-fill" style="width:@score.Score%;background:@(score.Score >= 70 ? "#dc3545" : score.Score >= 30 ? "#d4920a" : "#1ca8c7");"></div>
+                                        </div>
+                                        <span>@score.Score</span>
+                                    </div>
+                                </td>
+                                <td>@score.Weight</td>
+                                <td><small>@score.Details</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- URLs -->
+    @if (Model.Urls.Any())
+    {
+        <div class="pn-card">
+            <div class="pn-card-header">
+                <h2 class="pn-card-title">URLs Found</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="pn-table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Domain</th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var url in Model.Urls)
+                        {
+                            <tr>
+                                <td class="text-break"><code style="font-size:0.8rem;">@url.OriginalUrl</code></td>
+                                <td>@url.Domain</td>
+                                <td>
+                                    @if (url.IsSafe == true) { <span class="inbox-tag inbox-tag--safe">Safe</span> }
+                                    else if (url.IsSafe == false) { <span class="inbox-tag inbox-tag--danger">Unsafe</span> }
+                                    else { <span class="inbox-tag inbox-tag--muted">Unchecked</span> }
+                                </td>
+                                <td><small>@url.SafeBrowsingResult</small></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
 </div>

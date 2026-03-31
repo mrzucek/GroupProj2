@@ -43,6 +43,7 @@ public class DashboardController : Controller
             SenderAddress = e.SenderAddress,
             SenderDisplayName = e.SenderDisplayName,
             Subject = e.Subject,
+            BodyPreview = e.BodyPreview,
             ReceivedAt = e.ReceivedAt,
             OverallScore = e.OverallScore,
             Classification = e.Classification,

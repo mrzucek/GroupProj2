@@ -1,44 +1,57 @@
 @model PhishGuard.Models.SimulationEmail
 @{ ViewData["Title"] = Model.Campaign.TemplateSubject; }
 
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">Back to Training</a>
-
-<!-- Simulated Email Display — looks like a real email -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <div class="d-flex justify-content-between">
-            <div>
-                <strong>@Model.Campaign.TemplateSender</strong>
-                <br />
-                <small class="text-muted">To: me</small>
-            </div>
-            <small class="text-muted">@Model.SentAt.ToString("MMM dd, yyyy h:mm tt")</small>
+<div class="pn-page" style="max-width:800px;">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Simulated Email</h1>
+            <p class="pn-page-subtitle">Review this email as if it landed in your real inbox.</p>
         </div>
-        <h5 class="mt-2 mb-0">@Model.Campaign.TemplateSubject</h5>
+        <div class="pn-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to Training</a>
+        </div>
     </div>
-    <div class="card-body">
-        <div class="mb-4" style="white-space: pre-wrap; line-height: 1.7;">@Model.Campaign.TemplateBody</div>
 
-        @if (Model.Result == PhishGuard.Models.SimulationResult.Pending)
-        {
-            <hr />
-            <div class="d-flex gap-2">
-                <form asp-action="SimulationClicked" asp-route-id="@Model.SimulationId" method="post">
-                    <button type="submit" class="btn btn-primary">Click Link in Email</button>
-                </form>
-                <form asp-action="SimulationReported" asp-route-id="@Model.SimulationId" method="post">
-                    <button type="submit" class="btn btn-outline-danger">Report as Phishing</button>
-                </form>
+    <!-- Simulated email card — styled like the inbox detail pane -->
+    <div class="pn-card">
+        <div class="pn-card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <div style="font-weight:600;font-size:0.95rem;">@Model.Campaign.TemplateSender</div>
+                    <div class="text-muted" style="font-size:0.82rem;">To: me</div>
+                </div>
+                <span class="text-muted" style="font-size:0.82rem;">@Model.SentAt.ToString("MMM dd, yyyy h:mm tt")</span>
             </div>
-            <p class="text-muted small mt-2">
-                Treat this like a real email. If you think it's legitimate, click the link. If you think it's phishing, report it.
-            </p>
-        }
-        else
-        {
-            <div class="alert alert-info">
-                You've already responded to this simulation. <a asp-action="SimulationResult" asp-route-id="@Model.SimulationId">View result</a>
-            </div>
-        }
+            <h2 style="font-size:1.15rem;font-weight:700;margin:0 0 16px;">@Model.Campaign.TemplateSubject</h2>
+            <div style="white-space:pre-wrap;line-height:1.7;color:#444;font-size:0.9rem;border-top:1px solid var(--pn-border);padding-top:16px;">@Model.Campaign.TemplateBody</div>
+        </div>
     </div>
+
+    @if (Model.Result == PhishGuard.Models.SimulationResult.Pending)
+    {
+        <div class="pn-card">
+            <div class="pn-card-body">
+                <p class="text-muted" style="font-size:0.85rem;margin:0 0 12px;">
+                    Treat this like a real email. If you think it's legitimate, click the link. If you think it's phishing, report it.
+                </p>
+                <div class="d-flex gap-2">
+                    <form asp-action="SimulationClicked" asp-route-id="@Model.SimulationId" method="post">
+                        <button type="submit" class="btn pn-btn">Click Link in Email</button>
+                    </form>
+                    <form asp-action="SimulationReported" asp-route-id="@Model.SimulationId" method="post">
+                        <button type="submit" class="btn pn-btn-outline-danger">Report as Phishing</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="pn-card">
+            <div class="pn-card-body text-center" style="padding:20px;">
+                You've already responded to this simulation.
+                <a asp-action="SimulationResult" asp-route-id="@Model.SimulationId" class="pn-auth-link" style="margin-left:4px;">View result</a>
+            </div>
+        </div>
+    }
 </div>

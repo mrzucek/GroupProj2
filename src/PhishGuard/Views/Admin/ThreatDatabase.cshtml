@@ -2,65 +2,69 @@
 @using PhishGuard.Models
 @{ ViewData["Title"] = "Threat Database"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Threat Intelligence Database</h2>
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to Dashboard</a>
-</div>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Threat Database</h1>
+            <p class="pn-page-subtitle">
+                Known malicious indicators collected from threat feeds and employee reports.
+                <strong>@Model.Count(t => t.IsActive)</strong> active indicators.
+            </p>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </div>
 
-<p class="text-muted">
-    Known malicious indicators collected from threat feeds and employee reports.
-    The scoring engine checks incoming emails against this database.
-    <strong>@Model.Count(t => t.IsActive)</strong> active indicators.
-</p>
-
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th>Type</th>
-                    <th>Value</th>
-                    <th>Source</th>
-                    <th>Severity</th>
-                    <th>First Seen</th>
-                    <th>Last Seen</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (!Model.Any())
-                {
+    <div class="pn-card">
+        <div class="table-responsive">
+            <table class="pn-table">
+                <thead>
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
-                            No threat indicators yet. They'll be added automatically when admins confirm phishing reports.
-                        </td>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Source</th>
+                        <th>Severity</th>
+                        <th>First Seen</th>
+                        <th>Last Seen</th>
+                        <th>Status</th>
                     </tr>
-                }
-                @foreach (var indicator in Model)
-                {
-                    var severityBadge = indicator.Severity switch
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
-                        ThreatSeverity.Low => "bg-info",
-                        ThreatSeverity.Medium => "bg-warning text-dark",
-                        ThreatSeverity.High => "bg-danger",
-                        ThreatSeverity.Critical => "bg-dark",
-                        _ => "bg-secondary"
-                    };
-                    <tr>
-                        <td><span class="badge bg-secondary">@indicator.Type</span></td>
-                        <td class="text-break"><code>@indicator.Value</code></td>
-                        <td>@indicator.Source</td>
-                        <td><span class="badge @severityBadge">@indicator.Severity</span></td>
-                        <td>@indicator.FirstSeen.ToString("MMM dd, yyyy")</td>
-                        <td>@indicator.LastSeen.ToString("MMM dd, yyyy")</td>
-                        <td>
-                            <span class="badge @(indicator.IsActive ? "bg-success" : "bg-secondary")">
-                                @(indicator.IsActive ? "Active" : "Disabled")
-                            </span>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="padding:28px;">
+                                No threat indicators yet. They'll be added automatically when admins confirm phishing reports.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var indicator in Model)
+                    {
+                        var severityTag = indicator.Severity switch
+                        {
+                            ThreatSeverity.Low => "inbox-tag--muted",
+                            ThreatSeverity.Medium => "inbox-tag--warning",
+                            ThreatSeverity.High => "inbox-tag--danger",
+                            ThreatSeverity.Critical => "inbox-tag--critical",
+                            _ => "inbox-tag--muted"
+                        };
+                        <tr style="@(!indicator.IsActive ? "opacity:0.5;" : "")">
+                            <td><span class="inbox-tag inbox-tag--muted">@indicator.Type</span></td>
+                            <td class="text-break"><code style="font-size:0.8rem;">@indicator.Value</code></td>
+                            <td>@indicator.Source</td>
+                            <td><span class="inbox-tag @severityTag">@indicator.Severity</span></td>
+                            <td>@indicator.FirstSeen.ToString("MMM dd, yyyy")</td>
+                            <td>@indicator.LastSeen.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <span class="inbox-tag @(indicator.IsActive ? "inbox-tag--safe" : "inbox-tag--muted")">
+                                    @(indicator.IsActive ? "Active" : "Disabled")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

@@ -29,10 +29,17 @@ builder.Services.AddHttpClient("SafeBrowsing", client =>
     client.DefaultRequestHeaders.UserAgent.ParseAdd("PhishGuard/1.0");
 });
 
+// HTTP client for AI scoring (optional)
+builder.Services.AddHttpClient("OpenAI", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+
 // Services
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UrlSafetyService>();
 builder.Services.AddScoped<TrainingService>();
+builder.Services.AddScoped<AiPhishScoreService>();
 builder.Services.AddScoped<IScoringDimension, ThreatFeedScorer>();
 builder.Services.AddScoped<IScoringDimension, LanguageAnalysisScorer>();
 builder.Services.AddScoped<IScoringDimension, DomainReputationScorer>();

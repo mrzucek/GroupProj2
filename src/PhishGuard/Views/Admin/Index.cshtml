@@ -3,66 +3,59 @@
 @using PhishGuard.Controllers
 @{ ViewData["Title"] = "Admin Dashboard"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Admin Dashboard</h2>
-    <div>
-        <a asp-action="ScoringRules" class="btn btn-outline-secondary me-1">Scoring Rules</a>
-        <a asp-action="ThreatDatabase" class="btn btn-outline-secondary me-1">Threat Database</a>
-        <form asp-action="SendCompanySimulation" method="post" class="d-inline">
-            <button type="submit" class="btn btn-warning"
-                onclick="return confirm('Send simulated phishing emails to all employees?')">
-                Send Company-Wide Simulation
-            </button>
-        </form>
-    </div>
-</div>
-
-<!-- Company Security Score -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card shadow-sm text-center border-0">
-            <div class="card-body py-4">
-                @{
-                    var scoreColor = Model.CompanySecurityScore >= 80 ? "text-success" :
-                        Model.CompanySecurityScore >= 50 ? "text-warning" : "text-danger";
-                }
-                <h1 class="display-4 @scoreColor">@Model.CompanySecurityScore%</h1>
-                <h5 class="text-muted">Company Security Score</h5>
-                <small class="text-muted">Based on simulation detection rate</small>
-            </div>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Admin</h1>
+            <p class="pn-page-subtitle">Company security posture, reports, and tuning controls.</p>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="ScoringRules" class="btn btn-outline-secondary">Scoring Rules</a>
+            <a asp-action="ThreatDatabase" class="btn btn-outline-secondary">Threat Database</a>
+            <form asp-action="SendCompanySimulation" method="post" class="d-inline">
+                <button type="submit" class="btn pn-btn"
+                        onclick="return confirm('Send simulated phishing emails to all employees?')">
+                    Send Simulation
+                </button>
+            </form>
         </div>
     </div>
-    <div class="col-md-8">
-        <div class="row h-100">
-            <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h3>@Model.TotalEmployees</h3>
-                        <small class="text-muted">Employees</small>
-                    </div>
+
+<!-- Company Security Score -->
+<div class="pn-card" style="margin-bottom:14px;">
+    <div class="pn-card-header">
+        <h2 class="pn-card-title">Company Snapshot</h2>
+    </div>
+    <div class="pn-card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                @{
+                    var scoreColor = Model.CompanySecurityScore >= 80 ? "#50b583" :
+                        Model.CompanySecurityScore >= 50 ? "#d4920a" : "#c0392b";
+                }
+                <div class="pn-kpi" style="height:100%; display:flex; flex-direction:column; justify-content:center;">
+                    <div class="pn-kpi-value" style="font-size:1.6rem;color:@scoreColor;">@Model.CompanySecurityScore%</div>
+                    <div class="pn-kpi-label">Company Security Score</div>
+                    <div class="text-muted" style="font-size:0.78rem;margin-top:6px;">Based on simulation detection rate</div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h3>@Model.TotalEmailsScanned</h3>
-                        <small class="text-muted">Emails Scanned</small>
+            <div class="col-md-8">
+                <div class="pn-kpi-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+                    <div class="pn-kpi">
+                        <div class="pn-kpi-value">@Model.TotalEmployees</div>
+                        <div class="pn-kpi-label">Employees</div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h3 class="text-danger">@Model.TotalBlocked</h3>
-                        <small class="text-muted">Blocked</small>
+                    <div class="pn-kpi">
+                        <div class="pn-kpi-value">@Model.TotalEmailsScanned</div>
+                        <div class="pn-kpi-label">Emails Scanned</div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-center border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <h3 class="text-warning">@Model.TotalWarnings</h3>
-                        <small class="text-muted">Warnings</small>
+                    <div class="pn-kpi">
+                        <div class="pn-kpi-value" style="color:#c0392b;">@Model.TotalBlocked</div>
+                        <div class="pn-kpi-label">Blocked</div>
+                    </div>
+                    <div class="pn-kpi">
+                        <div class="pn-kpi-value" style="color:#d4920a;">@Model.TotalWarnings</div>
+                        <div class="pn-kpi-label">Warnings</div>
                     </div>
                 </div>
             </div>
@@ -71,56 +64,40 @@
 </div>
 
 <!-- Training & Threat Stats -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <h3>@Model.TotalSimulationsSent</h3>
-                <small class="text-muted">Simulations Sent</small>
-            </div>
-        </div>
+<div class="pn-kpi-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom:14px;">
+    <div class="pn-kpi">
+        <div class="pn-kpi-value">@Model.TotalSimulationsSent</div>
+        <div class="pn-kpi-label">Simulations Sent</div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <h3 class="text-success">@Model.SimulationsReported</h3>
-                <small class="text-muted">Caught by Employees</small>
-            </div>
-        </div>
+    <div class="pn-kpi">
+        <div class="pn-kpi-value" style="color:#1ca8c7;">@Model.SimulationsReported</div>
+        <div class="pn-kpi-label">Caught</div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <h3 class="text-danger">@Model.SimulationsClicked</h3>
-                <small class="text-muted">Clicked by Employees</small>
-            </div>
-        </div>
+    <div class="pn-kpi">
+        <div class="pn-kpi-value" style="color:#c0392b;">@Model.SimulationsClicked</div>
+        <div class="pn-kpi-label">Clicked</div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-center border-0 shadow-sm">
-            <div class="card-body">
-                <h3>@Model.ActiveThreatIndicators</h3>
-                <small class="text-muted">Threat Indicators</small>
-            </div>
-        </div>
+    <div class="pn-kpi">
+        <div class="pn-kpi-value">@Model.ActiveThreatIndicators</div>
+        <div class="pn-kpi-label">Threat Indicators</div>
     </div>
 </div>
 
 <!-- Pending Reports -->
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
+<div class="pn-card" style="margin-bottom:14px;">
+    <div class="pn-card-header">
+        <h2 class="pn-card-title" style="margin-right:auto;">
             Phishing Reports
             @if (Model.PendingReports > 0)
             {
-                <span class="badge bg-danger ms-2">@Model.PendingReports pending</span>
+                <span class="inbox-tag inbox-tag--danger" style="margin-left:8px;">@Model.PendingReports pending</span>
             }
-        </h5>
+        </h2>
     </div>
     @if (Model.RecentReports.Any())
     {
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="pn-table">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -135,7 +112,7 @@
                 <tbody>
                     @foreach (var report in Model.RecentReports)
                     {
-                        <tr class="@(report.IsConfirmedPhishing == null ? "table-warning" : "")">
+                        <tr style="@(report.IsConfirmedPhishing == null ? "background: rgba(212,146,10,0.10);" : "")">
                             <td>@report.CreatedAt.ToString("MMM dd")</td>
                             <td>@report.Reporter.DisplayName</td>
                             <td>@(report.Email.Subject?.Substring(0, Math.Min(40, report.Email.Subject?.Length ?? 0)))...</td>
@@ -144,15 +121,15 @@
                             <td>
                                 @if (report.IsConfirmedPhishing == null)
                                 {
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="inbox-tag inbox-tag--warning">Pending</span>
                                 }
                                 else if (report.IsConfirmedPhishing == true)
                                 {
-                                    <span class="badge bg-danger">Confirmed Phishing</span>
+                                    <span class="inbox-tag inbox-tag--danger">Confirmed</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">Not Phishing</span>
+                                    <span class="inbox-tag inbox-tag--muted">Not phishing</span>
                                 }
                             </td>
                             <td>
@@ -177,19 +154,19 @@
     }
     else
     {
-        <div class="card-body text-center text-muted">No reports yet.</div>
+        <div class="pn-card-body text-center text-muted">No reports yet.</div>
     }
 </div>
 
 <!-- Employee Performance -->
 <div class="row">
     <div class="col-md-8">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Employee Performance</h5>
+        <div class="pn-card" style="margin-bottom:14px;">
+            <div class="pn-card-header">
+                <h2 class="pn-card-title">Employee Performance</h2>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="pn-table">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -211,9 +188,7 @@
                                 <td>@t.Employee.DisplayName</td>
                                 <td><strong>@t.ScorePoints</strong></td>
                                 <td>
-                                    <span class="badge bg-@(t.CurrentDifficulty == Difficulty.Easy ? "success" : t.CurrentDifficulty == Difficulty.Medium ? "warning" : t.CurrentDifficulty == Difficulty.Hard ? "danger" : "dark")">
-                                        @t.CurrentDifficulty
-                                    </span>
+                                    <span class="inbox-tag inbox-tag--muted">@t.CurrentDifficulty</span>
                                 </td>
                                 <td class="text-success">@t.TotalCorrectlyReported</td>
                                 <td class="text-danger">@t.TotalClicked</td>
@@ -226,9 +201,9 @@
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Top Blocked Senders</h5>
+        <div class="pn-card" style="margin-bottom:14px;">
+            <div class="pn-card-header">
+                <h2 class="pn-card-title">Top Blocked Senders</h2>
             </div>
             @if (Model.TopPhishingSenders.Any())
             {
@@ -237,15 +212,17 @@
                     {
                         <li class="list-group-item d-flex justify-content-between">
                             <small class="text-break">@sender.SenderAddress</small>
-                            <span class="badge bg-danger">@sender.Count</span>
+                            <span class="inbox-tag inbox-tag--danger">@sender.Count</span>
                         </li>
                     }
                 </ul>
             }
             else
             {
-                <div class="card-body text-center text-muted">No blocked senders yet.</div>
+                <div class="pn-card-body text-center text-muted">No blocked senders yet.</div>
             }
         </div>
     </div>
+</div>
+
 </div>

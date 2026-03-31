@@ -14,6 +14,7 @@ public class EmailViewModel
     public string SenderAddress { get; set; } = string.Empty;
     public string? SenderDisplayName { get; set; }
     public string? Subject { get; set; }
+    public string? BodyPreview { get; set; }
     public DateTime ReceivedAt { get; set; }
     public decimal OverallScore { get; set; }
     public EmailClassification Classification { get; set; }

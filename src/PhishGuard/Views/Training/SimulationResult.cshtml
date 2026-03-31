@@ -5,71 +5,75 @@
     var caught = Model.Result == PhishGuard.Models.SimulationResult.Reported;
 }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8">
-        <!-- Result Banner -->
-        <div class="card shadow-sm mb-4 @(caught ? "border-success" : "border-danger") border-3">
-            <div class="card-body text-center p-4">
-                @if (caught)
-                {
-                    <h2 class="text-success">Great catch!</h2>
-                    <p class="lead">You correctly identified this as a phishing email.</p>
-                    <p>
-                        <strong>+@(Model.Campaign.Difficulty switch {
-                            PhishGuard.Models.Difficulty.Easy => 5,
-                            PhishGuard.Models.Difficulty.Medium => 10,
-                            PhishGuard.Models.Difficulty.Hard => 20,
-                            PhishGuard.Models.Difficulty.Expert => 40,
-                            _ => 10
-                        }) points earned!</strong>
-                        @if (training != null)
-                        {
-                            <span class="ms-2">Current streak: @training.CurrentStreak</span>
-                        }
-                    </p>
-                }
-                else
-                {
-                    <h2 class="text-danger">This was a simulated phishing email</h2>
-                    <p class="lead">Don't worry — no harm done. This is a training exercise.</p>
-                    <p>Your streak has been reset. Keep practicing to build your detection skills!</p>
-                }
-            </div>
-        </div>
-
-        <!-- Learning Moment -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">What to look for</h5>
-            </div>
-            <div class="card-body">
-                <h6>This was a <span class="badge bg-@(Model.Campaign.Difficulty == PhishGuard.Models.Difficulty.Easy ? "success" : Model.Campaign.Difficulty == PhishGuard.Models.Difficulty.Medium ? "warning" : Model.Campaign.Difficulty == PhishGuard.Models.Difficulty.Hard ? "danger" : "dark")">@Model.Campaign.Difficulty</span> level simulation: "@Model.Campaign.CampaignName"</h6>
-
-                <div class="mt-3">
-                    <strong>Sender:</strong>
-                    <span class="text-danger">@Model.Campaign.TemplateSender</span>
-                </div>
-
-                <div class="mt-2">
-                    <strong>Subject:</strong>
-                    @Model.Campaign.TemplateSubject
-                </div>
-
-                <div class="mt-3">
-                    <strong>Red flags in this email:</strong>
-                </div>
-                <ul class="mt-2">
-                    @foreach (var indicator in Model.Campaign.PhishingIndicators.Split(';', StringSplitOptions.TrimEntries))
+<div class="pn-page" style="max-width:760px;">
+    <!-- Result Banner -->
+    <div class="pn-card" style="border-top:3px solid @(caught ? "#50b583" : "#dc3545");">
+        <div class="pn-card-body text-center" style="padding:32px 24px;">
+            @if (caught)
+            {
+                <div style="font-size:1.3rem;font-weight:800;color:#50b583;">Great catch!</div>
+                <p class="text-muted" style="margin:8px 0 0;font-size:0.9rem;">
+                    You correctly identified this as a phishing email.
+                    <strong>+@(Model.Campaign.Difficulty switch {
+                        PhishGuard.Models.Difficulty.Easy => 5,
+                        PhishGuard.Models.Difficulty.Medium => 10,
+                        PhishGuard.Models.Difficulty.Hard => 20,
+                        PhishGuard.Models.Difficulty.Expert => 40,
+                        _ => 10
+                    }) points earned!</strong>
+                    @if (training != null)
                     {
-                        <li>@indicator</li>
+                        <span>&bull; Streak: @training.CurrentStreak</span>
                     }
-                </ul>
-            </div>
+                </p>
+            }
+            else
+            {
+                <div style="font-size:1.3rem;font-weight:800;color:#dc3545;">This was a simulated phish</div>
+                <p class="text-muted" style="margin:8px 0 0;font-size:0.9rem;">
+                    Don't worry &mdash; no harm done. This is a training exercise. Your streak has been reset. Keep practicing!
+                </p>
+            }
         </div>
+    </div>
 
-        <div class="d-flex gap-2">
-            <a asp-action="Index" class="btn btn-primary">Back to Training</a>
-            <a asp-action="Leaderboard" class="btn btn-outline-primary">View Leaderboard</a>
+    <!-- Learning Moment -->
+    <div class="pn-card">
+        <div class="pn-card-header">
+            <h2 class="pn-card-title">What to look for</h2>
+            @{
+                var diffColor = Model.Campaign.Difficulty switch
+                {
+                    PhishGuard.Models.Difficulty.Easy => "#50b583",
+                    PhishGuard.Models.Difficulty.Medium => "#d4920a",
+                    PhishGuard.Models.Difficulty.Hard => "#c0392b",
+                    PhishGuard.Models.Difficulty.Expert => "#6f42c1",
+                    _ => "var(--pn-muted)"
+                };
+            }
+            <span class="inbox-tag" style="background:@(diffColor)22;color:@diffColor;">@Model.Campaign.Difficulty</span>
         </div>
+        <div class="pn-card-body">
+            <div style="margin-bottom:12px;">
+                <div class="text-muted" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Sender</div>
+                <div style="font-weight:600;color:#c0392b;">@Model.Campaign.TemplateSender</div>
+            </div>
+            <div style="margin-bottom:16px;">
+                <div class="text-muted" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;">Subject</div>
+                <div style="font-weight:600;">@Model.Campaign.TemplateSubject</div>
+            </div>
+            <div class="text-muted" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Red flags</div>
+            <ul class="inbox-detail-reasons">
+                @foreach (var indicator in Model.Campaign.PhishingIndicators.Split(';', StringSplitOptions.TrimEntries))
+                {
+                    <li>@indicator</li>
+                }
+            </ul>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2" style="margin-top:14px;">
+        <a asp-action="Index" class="btn pn-btn">Back to Training</a>
+        <a asp-action="Leaderboard" class="btn btn-outline-secondary">Leaderboard</a>
     </div>
 </div>

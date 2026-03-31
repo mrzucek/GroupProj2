@@ -7,15 +7,17 @@ public class ScoringEngine
 {
     private readonly PhishGuardContext _db;
     private readonly IEnumerable<IScoringDimension> _scorers;
+    private readonly AiPhishScoreService _aiScore;
 
     // Thresholds for classification
     private const decimal WarningThreshold = 30;
     private const decimal BlockedThreshold = 70;
 
-    public ScoringEngine(PhishGuardContext db, IEnumerable<IScoringDimension> scorers)
+    public ScoringEngine(PhishGuardContext db, IEnumerable<IScoringDimension> scorers, AiPhishScoreService aiScore)
     {
         _db = db;
         _scorers = scorers;
+        _aiScore = aiScore;
     }
 
     public async Task<EmailAnalysisResult> AnalyzeEmailAsync(Email email)
@@ -35,11 +37,21 @@ public class ScoringEngine
 
         foreach (var score in scores)
         {
+            // Only include dimensions that actually contributed signal.
+            // Otherwise a single strong signal (e.g., LanguageAnalysis=80) gets diluted by
+            // other dimensions that returned 0, which makes the overall score feel inconsistent.
+            if (score.Score <= 0) continue;
+
             totalWeightedScore += score.Score * score.Weight;
             totalWeight += score.Weight;
         }
 
         var overallScore = totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+
+        // Optional: let AI assign the final PhishNET score (0-100). Falls back silently.
+        var aiOverall = await _aiScore.TryAssignOverallScoreAsync(email, scores, overallScore);
+        if (aiOverall.HasValue)
+            overallScore = aiOverall.Value;
 
         // Classify based on thresholds
         var classification = overallScore switch
