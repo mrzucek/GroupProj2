@@ -2869,24 +2869,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\marce\\.nuget\\packages\\": {}
+    "/Users/gradycullen/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\marce\\MIS\\GroupProject2\\src\\PhishGuard\\PhishGuard.csproj",
+      "projectUniqueName": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/PhishGuard.csproj",
       "projectName": "PhishGuard",
-      "projectPath": "C:\\Users\\marce\\MIS\\GroupProject2\\src\\PhishGuard\\PhishGuard.csproj",
-      "packagesPath": "C:\\Users\\marce\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\marce\\MIS\\GroupProject2\\src\\PhishGuard\\obj\\",
+      "projectPath": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/PhishGuard.csproj",
+      "packagesPath": "/Users/gradycullen/.nuget/packages/",
+      "outputPath": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\marce\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/gradycullen/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "/opt/homebrew/Cellar/dotnet/9.0.7/libexec/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2905,7 +2906,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -2951,7 +2952,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/opt/homebrew/Cellar/dotnet/9.0.7/libexec/sdk/9.0.108/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

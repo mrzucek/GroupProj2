@@ -447,7 +447,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 1,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 249, DateTimeKind.Utc).AddTicks(9854),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 0,
                             IsActive = true,
                             RuleDescription = "Domain found in threat intelligence feeds",
@@ -457,7 +457,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 2,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(408),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 0,
                             IsActive = true,
                             RuleDescription = "Exact URL found in threat feeds",
@@ -467,7 +467,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 3,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(410),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 0,
                             IsActive = true,
                             RuleDescription = "Sender email in threat database",
@@ -477,7 +477,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 4,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(411),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 1,
                             IsActive = true,
                             RuleDescription = "Sender domain registered less than 30 days ago",
@@ -487,7 +487,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 5,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(412),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 1,
                             IsActive = true,
                             RuleDescription = "Sender domain registered less than 7 days ago",
@@ -497,7 +497,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 6,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(413),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 1,
                             IsActive = true,
                             RuleDescription = "Domain similar to a known legitimate domain",
@@ -507,7 +507,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 7,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(414),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 2,
                             IsActive = true,
                             Pattern = "act now|immediate action|expires today|last chance|urgent",
@@ -518,7 +518,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 8,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(488),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 2,
                             IsActive = true,
                             Pattern = "CEO|director|executive|management requires",
@@ -529,7 +529,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 9,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(489),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 2,
                             IsActive = true,
                             Pattern = "account suspended|security breach|unauthorized access|locked out",
@@ -540,7 +540,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 10,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(490),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 2,
                             IsActive = true,
                             Pattern = "you've won|congratulations|free gift|claim your prize",
@@ -551,7 +551,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 11,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(491),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 2,
                             IsActive = true,
                             Pattern = "verify your account|confirm your password|update your information|click here to log in",
@@ -562,7 +562,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 12,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(492),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 3,
                             IsActive = true,
                             RuleDescription = "Email from internal sender outside business hours",
@@ -572,7 +572,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 13,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(493),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 3,
                             IsActive = true,
                             RuleDescription = "Sender has never emailed this recipient before",
@@ -582,7 +582,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 14,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(493),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 4,
                             IsActive = true,
                             RuleDescription = "Email HTML structure doesn't match known sender templates",
@@ -592,7 +592,7 @@ namespace PhishGuard.Migrations
                         new
                         {
                             RuleId = 15,
-                            CreatedAt = new DateTime(2026, 3, 24, 20, 52, 53, 250, DateTimeKind.Utc).AddTicks(494),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Dimension = 4,
                             IsActive = true,
                             RuleDescription = "Email contains hidden or obfuscated content",

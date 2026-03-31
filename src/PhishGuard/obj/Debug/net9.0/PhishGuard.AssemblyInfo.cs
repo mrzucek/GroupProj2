@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhishGuard")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+03bc4d6590bea0516b355f08744ed5c360f5d58a")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhishGuard")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhishGuard")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -147,31 +147,32 @@ public class PhishGuardContext : DbContext
 
     private static void SeedDefaultRules(ModelBuilder modelBuilder)
     {
+        var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         modelBuilder.Entity<ScoringRule>().HasData(
             // Threat feed rules
-            new ScoringRule { RuleId = 1, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing domain", RuleDescription = "Domain found in threat intelligence feeds", ScoreValue = 90 },
-            new ScoringRule { RuleId = 2, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing URL", RuleDescription = "Exact URL found in threat feeds", ScoreValue = 95 },
-            new ScoringRule { RuleId = 3, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing sender", RuleDescription = "Sender email in threat database", ScoreValue = 85 },
+            new ScoringRule { RuleId = 1, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing domain", RuleDescription = "Domain found in threat intelligence feeds", ScoreValue = 90, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 2, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing URL", RuleDescription = "Exact URL found in threat feeds", ScoreValue = 95, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 3, Dimension = ScoringDimension.ThreatFeed, RuleName = "Known phishing sender", RuleDescription = "Sender email in threat database", ScoreValue = 85, CreatedAt = seedDate },
 
             // Domain reputation rules
-            new ScoringRule { RuleId = 4, Dimension = ScoringDimension.DomainReputation, RuleName = "New domain (< 30 days)", RuleDescription = "Sender domain registered less than 30 days ago", ScoreValue = 40 },
-            new ScoringRule { RuleId = 5, Dimension = ScoringDimension.DomainReputation, RuleName = "Very new domain (< 7 days)", RuleDescription = "Sender domain registered less than 7 days ago", ScoreValue = 70 },
-            new ScoringRule { RuleId = 6, Dimension = ScoringDimension.DomainReputation, RuleName = "Lookalike domain", RuleDescription = "Domain similar to a known legitimate domain", ScoreValue = 60 },
+            new ScoringRule { RuleId = 4, Dimension = ScoringDimension.DomainReputation, RuleName = "New domain (< 30 days)", RuleDescription = "Sender domain registered less than 30 days ago", ScoreValue = 40, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 5, Dimension = ScoringDimension.DomainReputation, RuleName = "Very new domain (< 7 days)", RuleDescription = "Sender domain registered less than 7 days ago", ScoreValue = 70, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 6, Dimension = ScoringDimension.DomainReputation, RuleName = "Lookalike domain", RuleDescription = "Domain similar to a known legitimate domain", ScoreValue = 60, CreatedAt = seedDate },
 
             // Language analysis rules
-            new ScoringRule { RuleId = 7, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Urgency language", Pattern = "act now|immediate action|expires today|last chance|urgent", RuleDescription = "Email contains artificial urgency", ScoreValue = 25 },
-            new ScoringRule { RuleId = 8, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Authority manipulation", Pattern = "CEO|director|executive|management requires", RuleDescription = "Email impersonates authority figure", ScoreValue = 30 },
-            new ScoringRule { RuleId = 9, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Fear tactics", Pattern = "account suspended|security breach|unauthorized access|locked out", RuleDescription = "Email uses fear to prompt action", ScoreValue = 35 },
-            new ScoringRule { RuleId = 10, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Too-good-to-be-true", Pattern = "you've won|congratulations|free gift|claim your prize", RuleDescription = "Email promises unrealistic rewards", ScoreValue = 45 },
-            new ScoringRule { RuleId = 11, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Credential request", Pattern = "verify your account|confirm your password|update your information|click here to log in", RuleDescription = "Email requests sensitive information", ScoreValue = 50 },
+            new ScoringRule { RuleId = 7, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Urgency language", Pattern = "act now|immediate action|expires today|last chance|urgent", RuleDescription = "Email contains artificial urgency", ScoreValue = 25, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 8, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Authority manipulation", Pattern = "CEO|director|executive|management requires", RuleDescription = "Email impersonates authority figure", ScoreValue = 30, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 9, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Fear tactics", Pattern = "account suspended|security breach|unauthorized access|locked out", RuleDescription = "Email uses fear to prompt action", ScoreValue = 35, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 10, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Too-good-to-be-true", Pattern = "you've won|congratulations|free gift|claim your prize", RuleDescription = "Email promises unrealistic rewards", ScoreValue = 45, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 11, Dimension = ScoringDimension.LanguageAnalysis, RuleName = "Credential request", Pattern = "verify your account|confirm your password|update your information|click here to log in", RuleDescription = "Email requests sensitive information", ScoreValue = 50, CreatedAt = seedDate },
 
             // Behavioral timing rules
-            new ScoringRule { RuleId = 12, Dimension = ScoringDimension.BehavioralTiming, RuleName = "Off-hours email", RuleDescription = "Email from internal sender outside business hours", ScoreValue = 15 },
-            new ScoringRule { RuleId = 13, Dimension = ScoringDimension.BehavioralTiming, RuleName = "First-time sender", RuleDescription = "Sender has never emailed this recipient before", ScoreValue = 20 },
+            new ScoringRule { RuleId = 12, Dimension = ScoringDimension.BehavioralTiming, RuleName = "Off-hours email", RuleDescription = "Email from internal sender outside business hours", ScoreValue = 15, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 13, Dimension = ScoringDimension.BehavioralTiming, RuleName = "First-time sender", RuleDescription = "Sender has never emailed this recipient before", ScoreValue = 20, CreatedAt = seedDate },
 
             // HTML fingerprint rules
-            new ScoringRule { RuleId = 14, Dimension = ScoringDimension.HtmlFingerprint, RuleName = "Template mismatch", RuleDescription = "Email HTML structure doesn't match known sender templates", ScoreValue = 35 },
-            new ScoringRule { RuleId = 15, Dimension = ScoringDimension.HtmlFingerprint, RuleName = "Hidden text/links", RuleDescription = "Email contains hidden or obfuscated content", ScoreValue = 55 }
+            new ScoringRule { RuleId = 14, Dimension = ScoringDimension.HtmlFingerprint, RuleName = "Template mismatch", RuleDescription = "Email HTML structure doesn't match known sender templates", ScoreValue = 35, CreatedAt = seedDate },
+            new ScoringRule { RuleId = 15, Dimension = ScoringDimension.HtmlFingerprint, RuleName = "Hidden text/links", RuleDescription = "Email contains hidden or obfuscated content", ScoreValue = 55, CreatedAt = seedDate }
         );
     }
 }
