@@ -27,5 +27,6 @@ public enum ScoringDimension
     LanguageAnalysis,
     BehavioralTiming,
     HtmlFingerprint,
-    SenderHistory
+    SenderHistory,
+    LinkAnalysis
 }

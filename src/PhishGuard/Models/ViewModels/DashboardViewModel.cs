@@ -21,6 +21,15 @@ public class EmailViewModel
     public bool IsReported { get; set; }
     public List<string> WarningReasons { get; set; } = new();
     public List<EmailScoreViewModel> Scores { get; set; } = new();
+    public List<EmailUrlViewModel> Urls { get; set; } = new();
+}
+
+public class EmailUrlViewModel
+{
+    public int UrlId { get; set; }
+    public string OriginalUrl { get; set; } = string.Empty;
+    public string? Domain { get; set; }
+    public bool? IsSafe { get; set; }
 }
 
 public class EmailScoreViewModel

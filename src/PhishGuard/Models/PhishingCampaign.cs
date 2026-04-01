@@ -26,6 +26,7 @@ public class PhishingCampaign
 
     public int CreatedBy { get; set; }
     public bool IsActive { get; set; } = true;
+    public bool IsGenerated { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation

@@ -1,20 +1,24 @@
 using Microsoft.EntityFrameworkCore;
 using PhishGuard.Data;
 using PhishGuard.Models;
+using PhishGuard.Services.Training;
 
 namespace PhishGuard.Services;
 
 public class TrainingService
 {
     private readonly PhishGuardContext _db;
+    private readonly PhishingGeneratorService _generator;
 
-    public TrainingService(PhishGuardContext db)
+    public TrainingService(PhishGuardContext db, PhishingGeneratorService generator)
     {
         _db = db;
+        _generator = generator;
     }
 
     /// <summary>
     /// Send a simulated phishing email to an employee at their current difficulty level.
+    /// Tries AI generation first, falls back to static campaigns.
     /// </summary>
     public async Task<SimulationEmail?> SendSimulationAsync(int employeeId)
     {
@@ -23,13 +27,24 @@ public class TrainingService
 
         if (training == null) return null;
 
-        // Pick a random campaign at the employee's current difficulty
-        var campaign = await _db.PhishingCampaigns
-            .Where(c => c.IsActive && c.Difficulty == training.CurrentDifficulty)
-            .OrderBy(_ => EF.Functions.Random())
-            .FirstOrDefaultAsync();
+        // Try AI-generated phishing email first
+        PhishingCampaign? campaign = null;
+        var employee = await _db.Employees.FindAsync(employeeId);
+        if (employee != null)
+        {
+            campaign = await _generator.GeneratePhishingEmailAsync(
+                training.CurrentDifficulty, employee.DisplayName, employee.Department, employeeId);
+        }
 
-        // Fall back to any difficulty if none match
+        // Fall back to static campaigns
+        if (campaign == null)
+        {
+            campaign = await _db.PhishingCampaigns
+                .Where(c => c.IsActive && c.Difficulty == training.CurrentDifficulty)
+                .OrderBy(_ => EF.Functions.Random())
+                .FirstOrDefaultAsync();
+        }
+
         if (campaign == null)
         {
             campaign = await _db.PhishingCampaigns

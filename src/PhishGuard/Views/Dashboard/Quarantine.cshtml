@@ -1,0 +1,76 @@
+@model PhishGuard.Models.ViewModels.DashboardViewModel
+@{ ViewData["Title"] = "Spam & Quarantine"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="pn-container" style="padding-top: 24px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Spam &amp; Quarantine</h2>
+            <p class="text-muted">Emails blocked by PhishNET's scoring engine</p>
+        </div>
+        <span class="badge bg-danger fs-6">@Model.Stats.BlockedCount blocked</span>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Blocked Emails</h5>
+        </div>
+        <div class="card-body p-0">
+            @if (!Model.RecentEmails.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <h5>No spam detected</h5>
+                    <p>Emails flagged as phishing or malicious will appear here.</p>
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var email in Model.RecentEmails)
+                    {
+                        <a asp-action="EmailDetails" asp-route-id="@email.EmailId" class="list-group-item list-group-item-action border-start border-danger border-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="badge bg-danger me-2">Blocked</span>
+                                        <strong>@(email.SenderDisplayName ?? email.SenderAddress)</strong>
+                                        <small class="text-muted ms-auto">@email.ReceivedAt.ToString("MMM dd, h:mm tt")</small>
+                                    </div>
+                                    <div class="mb-1">@email.Subject</div>
+
+                                    @if (email.Urls.Any())
+                                    {
+                                        <div class="mt-1">
+                                            @foreach (var url in email.Urls)
+                                            {
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <span class="badge bg-danger" style="font-size:0.7rem;">Don't click</span>
+                                                    <small class="text-muted text-break" style="font-family:monospace;">@url.OriginalUrl</small>
+                                                </div>
+                                            }
+                                        </div>
+                                    }
+
+                                    @if (email.WarningReasons.Any())
+                                    {
+                                        <div class="alert alert-danger py-1 px-2 mb-0 mt-1 small">
+                                            <strong>Why this was blocked:</strong>
+                                            <ul class="mb-0 ps-3">
+                                                @foreach (var reason in email.WarningReasons.Take(3))
+                                                {
+                                                    <li>@reason</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="ms-3">
+                                    <span class="text-danger fw-bold">@Math.Round(email.OverallScore)</span>
+                                </div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

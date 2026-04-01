@@ -42,7 +42,8 @@ public class AuthService
         var employee = await _db.Employees.FirstOrDefaultAsync(e => e.Email == email && e.IsActive);
         if (employee == null) return null;
 
-        if (!BCrypt.Net.BCrypt.Verify(password, employee.PasswordHash))
+        if (string.IsNullOrEmpty(employee.PasswordHash) ||
+            !BCrypt.Net.BCrypt.Verify(password, employee.PasswordHash))
             return null;
 
         employee.LastLogin = DateTime.UtcNow;

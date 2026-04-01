@@ -32,6 +32,7 @@ public class DashboardController : Controller
             .OrderByDescending(e => e.ReceivedAt)
             .Take(50)
             .Include(e => e.Scores)
+            .Include(e => e.Urls)
             .ToListAsync();
 
         var training = await _db.EmployeeTrainings
@@ -58,6 +59,13 @@ public class DashboardController : Controller
                 Dimension = s.Dimension.ToString(),
                 Score = s.Score,
                 Details = s.Details
+            }).ToList(),
+            Urls = e.Urls.Select(u => new EmailUrlViewModel
+            {
+                UrlId = u.UrlId,
+                OriginalUrl = u.OriginalUrl,
+                Domain = u.Domain,
+                IsSafe = u.IsSafe
             }).ToList()
         }).ToList();
 
@@ -109,6 +117,60 @@ public class DashboardController : Controller
 
         TempData["Success"] = "Email reported as phishing. An admin will review your report — if confirmed, you'll earn points!";
         return RedirectToAction("Index");
+    }
+
+    public async Task<IActionResult> Quarantine()
+    {
+        var employeeId = GetEmployeeId();
+        var employee = await _db.Employees.FindAsync(employeeId);
+        if (employee == null) return RedirectToAction("Login", "Account");
+
+        var emails = await _db.Emails
+            .Where(e => e.RecipientId == employeeId && e.Classification == EmailClassification.Blocked)
+            .OrderByDescending(e => e.ReceivedAt)
+            .Take(50)
+            .Include(e => e.Scores)
+            .Include(e => e.Urls)
+            .ToListAsync();
+
+        var training = await _db.EmployeeTrainings
+            .FirstOrDefaultAsync(t => t.EmployeeId == employeeId);
+
+        var emailViewModels = emails.Select(e => new EmailViewModel
+        {
+            EmailId = e.EmailId,
+            SenderAddress = e.SenderAddress,
+            SenderDisplayName = e.SenderDisplayName,
+            Subject = e.Subject,
+            BodyPreview = e.BodyPreview,
+            ReceivedAt = e.ReceivedAt,
+            OverallScore = e.OverallScore,
+            Classification = e.Classification,
+            IsReported = e.IsReported,
+            WarningReasons = e.Scores.Where(s => s.Score > 0).OrderByDescending(s => s.Score * s.Weight)
+                .Select(s => s.Details ?? s.Dimension.ToString()).ToList(),
+            Scores = e.Scores.Select(s => new EmailScoreViewModel { Dimension = s.Dimension.ToString(), Score = s.Score, Details = s.Details }).ToList(),
+            Urls = e.Urls.Select(u => new EmailUrlViewModel { UrlId = u.UrlId, OriginalUrl = u.OriginalUrl, Domain = u.Domain, IsSafe = u.IsSafe }).ToList()
+        }).ToList();
+
+        var model = new DashboardViewModel
+        {
+            Employee = employee,
+            RecentEmails = emailViewModels,
+            Training = training,
+            Stats = new DashboardStats
+            {
+                TotalEmails = await _db.Emails.CountAsync(e => e.RecipientId == employeeId),
+                BlockedCount = await _db.Emails.CountAsync(e => e.RecipientId == employeeId && e.Classification == EmailClassification.Blocked),
+                WarningCount = await _db.Emails.CountAsync(e => e.RecipientId == employeeId && e.Classification == EmailClassification.Warning),
+                SafeCount = await _db.Emails.CountAsync(e => e.RecipientId == employeeId && e.Classification == EmailClassification.Safe),
+                ReportedCount = await _db.PhishingReports.CountAsync(r => r.ReportedBy == employeeId),
+                TrainingPoints = training?.ScorePoints ?? 0,
+                CurrentStreak = training?.CurrentStreak ?? 0
+            }
+        };
+
+        return View(model);
     }
 
     public async Task<IActionResult> EmailDetails(int id)
