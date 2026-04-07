@@ -1,19 +1,19 @@
 @{ ViewData["Title"] = "URL Safety Check"; }
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h3 class="card-title mb-3">URL Safety Checker</h3>
-                <p class="text-muted">Paste a link below to check if it's safe before visiting. We'll analyze the URL for known threats, suspicious domains, redirects, and file downloads.</p>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">URL Check</h1>
+            <p class="pn-page-subtitle">Paste a link to check for known threats, suspicious domains, redirects, and file downloads.</p>
+        </div>
+    </div>
 
-                <form asp-action="CheckPost" method="post">
-                    <div class="input-group input-group-lg">
-                        <input type="text" name="url" class="form-control" placeholder="https://example.com/suspicious-link" autofocus required />
-                        <button type="submit" class="btn btn-primary">Check URL</button>
-                    </div>
-                </form>
-            </div>
+    <div class="pn-card" style="max-width: 860px;">
+        <div class="pn-card-body">
+            <form asp-action="CheckPost" method="post" class="d-flex gap-2 flex-wrap">
+                <input type="text" name="url" class="pn-input" placeholder="https://example.com/suspicious-link" autofocus required style="flex:1;min-width:260px;" />
+                <button type="submit" class="btn pn-btn">Check URL</button>
+            </form>
         </div>
     </div>
 </div>

@@ -26,6 +26,7 @@ public class PhishGuardContext : DbContext
         {
             e.HasKey(x => x.EmployeeId);
             e.HasIndex(x => x.Email).IsUnique();
+            e.HasIndex(x => x.ClerkUserId).IsUnique();
         });
 
         // Email
@@ -63,6 +64,7 @@ public class PhishGuardContext : DbContext
                 .HasForeignKey(x => x.EmailId)
                 .OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.Domain);
+            e.Property(x => x.ThreatScore).HasPrecision(5, 2);
         });
 
         // ThreatIndicator

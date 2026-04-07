@@ -2,12 +2,16 @@
 @using PhishGuard.Models
 @{ ViewData["Title"] = "Scoring Rules"; }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Scoring Rules</h2>
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to Dashboard</a>
-</div>
-
-<p class="text-muted">These rules control how the scoring engine evaluates incoming emails. Toggle rules on or off to adjust detection sensitivity.</p>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Scoring Rules</h1>
+            <p class="pn-page-subtitle">Toggle rules on/off to adjust detection sensitivity by dimension.</p>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </div>
 
 @{
     var grouped = Model.GroupBy(r => r.Dimension).OrderBy(g => g.Key);
@@ -26,12 +30,12 @@
         _ => group.Key.ToString()
     };
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-white">
-            <h5 class="mb-0">@dimensionName</h5>
+    <div class="pn-card">
+        <div class="pn-card-header">
+            <h2 class="pn-card-title">@dimensionName</h2>
         </div>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="pn-table">
                 <thead>
                     <tr>
                         <th>Rule</th>
@@ -45,13 +49,13 @@
                 <tbody>
                     @foreach (var rule in group)
                     {
-                        <tr class="@(!rule.IsActive ? "table-secondary" : "")">
+                        <tr style="@(!rule.IsActive ? "background: #f6f7f9;" : "")">
                             <td><strong>@rule.RuleName</strong></td>
                             <td><small>@rule.RuleDescription</small></td>
                             <td><code>@(rule.Pattern ?? "-")</code></td>
                             <td><strong>@rule.ScoreValue</strong></td>
                             <td>
-                                <span class="badge @(rule.IsActive ? "bg-success" : "bg-secondary")">
+                                <span class="inbox-tag @(rule.IsActive ? "inbox-tag--safe" : "inbox-tag--muted")">
                                     @(rule.IsActive ? "Active" : "Disabled")
                                 </span>
                             </td>
@@ -70,3 +74,5 @@
         </div>
     </div>
 }
+
+</div>

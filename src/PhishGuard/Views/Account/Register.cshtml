@@ -1,47 +1,91 @@
 @model PhishGuard.Models.ViewModels.RegisterViewModel
 @{ ViewData["Title"] = "Register"; }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow">
-            <div class="card-body p-4">
-                <h2 class="card-title text-center mb-4">Create Account</h2>
-
-                <div asp-validation-summary="All" class="text-danger mb-3"></div>
-
-                <form asp-action="Register" method="post">
-                    <div class="mb-3">
-                        <label asp-for="DisplayName" class="form-label">Full Name</label>
-                        <input asp-for="DisplayName" class="form-control" autofocus />
-                        <span asp-validation-for="DisplayName" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Email" class="form-label">Email</label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Department" class="form-label">Department (optional)</label>
-                        <input asp-for="Department" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Password" class="form-label">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Create Account</button>
-                </form>
-
-                <hr />
-                <p class="text-center mb-0">
-                    Already have an account? <a asp-action="Login">Login here</a>
-                </p>
-            </div>
+<div class="pn-auth-wrapper">
+    <div class="pn-auth-card" @(ViewBag.UseClerk == true ? "style=max-width:500px;width:100%;" : "")>
+        <div class="pn-auth-header">
+            <span class="pn-auth-brand">Phish<span class="pn-auth-accent">NET</span></span>
+            <p class="pn-auth-sub">Create your account</p>
         </div>
+
+        @if (ViewBag.UseClerk == true)
+        {
+            <div id="clerk-sign-up" style="display:flex; justify-content:center; min-height:300px; align-items:center;">
+                <p style="color:var(--pn-muted);">Loading sign-up...</p>
+            </div>
+        }
+        else
+        {
+            <div asp-validation-summary="All" class="text-danger mb-3" style="font-size:0.85rem;"></div>
+
+            <form asp-action="Register" method="post">
+                <div class="pn-form-group">
+                    <label asp-for="DisplayName" class="pn-label">Full Name</label>
+                    <input asp-for="DisplayName" class="pn-input" autofocus />
+                    <span asp-validation-for="DisplayName" class="text-danger" style="font-size:0.8rem;"></span>
+                </div>
+                <div class="pn-form-group">
+                    <label asp-for="Email" class="pn-label">Email</label>
+                    <input asp-for="Email" class="pn-input" />
+                    <span asp-validation-for="Email" class="text-danger" style="font-size:0.8rem;"></span>
+                </div>
+                <div class="pn-form-group">
+                    <label asp-for="Department" class="pn-label">Department (optional)</label>
+                    <input asp-for="Department" class="pn-input" />
+                </div>
+                <div class="pn-form-group">
+                    <label asp-for="Password" class="pn-label">Password</label>
+                    <input asp-for="Password" type="password" class="pn-input" />
+                    <span asp-validation-for="Password" class="text-danger" style="font-size:0.8rem;"></span>
+                </div>
+                <div class="pn-form-group">
+                    <label asp-for="ConfirmPassword" class="pn-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" class="pn-input" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger" style="font-size:0.8rem;"></span>
+                </div>
+                <button type="submit" class="btn pn-btn w-100" style="padding:10px;">Create account</button>
+            </form>
+
+            <div class="pn-auth-footer">
+                Already have an account? <a asp-action="Login" class="pn-auth-link">Sign in</a>
+            </div>
+        }
     </div>
 </div>
+
+@if (ViewBag.UseClerk == true)
+{
+    @section Scripts {
+        <script>
+            (function() {
+                var fapiUrl = '@Html.Raw(ViewBag.ClerkFapiUrl)';
+                var pk = '@Html.Raw(ViewBag.ClerkPublishableKey)';
+                var el = document.getElementById('clerk-sign-up');
+
+                var s = document.createElement('script');
+                s.src = 'https://' + fapiUrl + '/npm/%40clerk/clerk-js%405/dist/clerk.browser.js';
+                s.crossOrigin = 'anonymous';
+                s.setAttribute('data-clerk-publishable-key', pk);
+                s.onload = async function() {
+                    try {
+                        await window.Clerk.load();
+                        if (window.Clerk.user) {
+                            window.location.href = '/';
+                            return;
+                        }
+                        window.Clerk.mountSignUp(el, {
+                            afterSignInUrl: '/',
+                            afterSignUpUrl: '/'
+                        });
+                    } catch(e) {
+                        el.innerHTML = '<p style="color:red;text-align:center;">Error: ' + e.message + '</p>';
+                    }
+                };
+                s.onerror = function() {
+                    el.innerHTML = '<p style="color:red;text-align:center;">Failed to load from ' + fapiUrl + '</p>';
+                };
+                document.head.appendChild(s);
+            })();
+        </script>
+    }
+}

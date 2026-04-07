@@ -18,8 +18,11 @@ public class Employee
     [Required]
     public EmployeeRole Role { get; set; } = EmployeeRole.Employee;
 
-    [Required, MaxLength(255)]
-    public string PasswordHash { get; set; } = string.Empty;
+    [MaxLength(255)]
+    public string? PasswordHash { get; set; }
+
+    [MaxLength(255)]
+    public string? ClerkUserId { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastLogin { get; set; }

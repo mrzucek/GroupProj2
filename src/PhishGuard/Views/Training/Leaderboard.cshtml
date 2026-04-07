@@ -4,17 +4,23 @@
     var currentId = (int)ViewBag.CurrentEmployeeId;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Security Leaderboard</h2>
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to Training</a>
-</div>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Leaderboard</h1>
+            <p class="pn-page-subtitle">Top performers based on training points and detection rate.</p>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to Training</a>
+        </div>
+    </div>
 
 @if (!Model.Any())
 {
-    <div class="card shadow-sm">
-        <div class="card-body text-center py-5 text-muted">
-            <h5>No training data yet</h5>
-            <p>Start training exercises to appear on the leaderboard!</p>
+    <div class="pn-card">
+        <div class="pn-card-body text-center" style="padding:28px;">
+            <div style="font-weight:800;">No training data yet</div>
+            <div class="text-muted" style="margin-top:6px;">Start training exercises to appear on the leaderboard.</div>
         </div>
     </div>
 }
@@ -23,27 +29,26 @@ else
     <!-- Top 3 Podium -->
     @if (Model.Count >= 3)
     {
-        <div class="row mb-4 justify-content-center">
+        <div class="row mb-3 justify-content-center">
             @for (int i = 0; i < Math.Min(3, Model.Count); i++)
             {
                 var entry = Model[i];
-                var podiumClass = i switch { 0 => "border-warning", 1 => "border-secondary", _ => "border-info" };
                 var medal = i switch { 0 => "1st", 1 => "2nd", _ => "3rd" };
                 var isMe = entry.EmployeeId == currentId;
 
                 <div class="col-md-4">
-                    <div class="card text-center shadow-sm @podiumClass border-3 @(isMe ? "bg-light" : "")">
-                        <div class="card-body">
-                            <h4 class="mb-0">@medal</h4>
-                            <h5 class="mt-2 @(isMe ? "text-primary" : "")">
+                    <div class="pn-card" style="border-top:3px solid @(i == 0 ? "#d4a843" : i == 1 ? "#94a3b8" : "#1ca8c7");">
+                        <div class="pn-card-body text-center">
+                            <div class="text-muted" style="font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;">@medal</div>
+                            <div style="font-weight:800;font-size:1.05rem;margin-top:6px; color:@(isMe ? "var(--pn-blue)" : "var(--pn-text)")">
                                 @entry.DisplayName @(isMe ? "(You)" : "")
-                            </h5>
+                            </div>
                             @if (entry.Department != null)
                             {
-                                <small class="text-muted">@entry.Department</small>
+                                <div class="text-muted" style="font-size:0.8rem;margin-top:2px;">@entry.Department</div>
                             }
-                            <h3 class="text-primary mt-2">@entry.ScorePoints pts</h3>
-                            <small>Best streak: @entry.BestStreak | Detection rate: @entry.ReportRate%</small>
+                            <div style="font-weight:800;font-size:1.25rem;margin-top:8px;color:var(--pn-blue);">@entry.ScorePoints pts</div>
+                            <div class="text-muted" style="font-size:0.8rem;margin-top:4px;">Best streak: @entry.BestStreak • Detection: @entry.ReportRate%</div>
                         </div>
                     </div>
                 </div>
@@ -52,10 +57,10 @@ else
     }
 
     <!-- Full Table -->
-    <div class="card shadow-sm">
+    <div class="pn-card">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-dark">
+            <table class="pn-table">
+                <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Employee</th>
@@ -73,19 +78,17 @@ else
                     {
                         var entry = Model[i];
                         var isMe = entry.EmployeeId == currentId;
-                        <tr class="@(isMe ? "table-primary" : "")">
+                        <tr style="@(isMe ? "background: rgba(28,168,199,0.08);" : "")">
                             <td><strong>#@(i + 1)</strong></td>
                             <td>
                                 @entry.DisplayName
-                                @if (isMe) { <span class="badge bg-primary">You</span> }
+                                @if (isMe) { <span class="inbox-tag inbox-tag--muted" style="margin-left:6px;">You</span> }
                             </td>
                             <td>@(entry.Department ?? "-")</td>
                             <td><strong>@entry.ScorePoints</strong></td>
                             <td>@entry.CurrentStreak (best: @entry.BestStreak)</td>
                             <td>
-                                <span class="badge bg-@(entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Easy ? "success" : entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Medium ? "warning" : entry.CurrentDifficulty == PhishGuard.Models.Difficulty.Hard ? "danger" : "dark")">
-                                    @entry.CurrentDifficulty
-                                </span>
+                                <span class="inbox-tag inbox-tag--muted">@entry.CurrentDifficulty</span>
                             </td>
                             <td class="text-success">@entry.TotalReported</td>
                             <td class="text-danger">@entry.TotalClicked</td>
@@ -102,3 +105,5 @@ else
         </div>
     </div>
 }
+
+</div>

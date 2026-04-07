@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "jD+l7fWFMJzWugr+elkSoom49+jcI0G5errzmI9bVvs=",
+  "Hash": "12AWeBp+yICsgDTlAnh7v64HhX7tECGqL0PObmkYKGQ=",
   "Source": "PhishGuard",
   "BasePath": "_content/PhishGuard",
   "Mode": "Default",
@@ -1340,12 +1340,12 @@
       "OriginalItemSpec": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/scopedcss/bundle/PhishGuard.styles.css"
     },
     {
-      "Identity": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-lugek5hnai.gz",
+      "Identity": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-6fyukccgoa.gz",
       "SourceId": "PhishGuard",
       "SourceType": "Discovered",
       "ContentRoot": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/",
       "BasePath": "_content/PhishGuard",
-      "RelativePath": "css/site#[.{fingerprint=lugek5hnai}]?.css.gz",
+      "RelativePath": "css/site#[.{fingerprint=6fyukccgoa}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -1354,8 +1354,8 @@
       "RelatedAsset": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/wwwroot/css/site.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "mtbculngh9",
-      "Integrity": "Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo=",
+      "Fingerprint": "uaux7qvdn7",
+      "Integrity": "plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/wwwroot/css/site.css"
@@ -1417,8 +1417,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "lugek5hnai",
-      "Integrity": "zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo=",
+      "Fingerprint": "6fyukccgoa",
+      "Integrity": "PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/css/site.css"
@@ -2728,13 +2728,13 @@
   ],
   "Endpoints": [
     {
-      "Route": "css/site.css",
-      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-lugek5hnai.gz",
+      "Route": "css/site.6fyukccgoa.css",
+      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-6fyukccgoa.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.003194888179"
+          "Quality": "0.000284981476"
         }
       ],
       "ResponseHeaders": [
@@ -2744,19 +2744,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "312"
+          "Value": "3508"
         },
         {
           "Name": "ETag",
-          "Value": "\"Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo=\""
+          "Value": "\"plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "no-cache"
+          "Value": "max-age=31536000, immutable"
         },
         {
           "Name": "Content-Encoding",
@@ -2772,18 +2772,26 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo=\""
+          "Value": "W/\"PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE=\""
         }
       ],
       "EndpointProperties": [
         {
+          "Name": "fingerprint",
+          "Value": "6fyukccgoa"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
           "Name": "integrity",
-          "Value": "sha256-zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo="
+          "Value": "sha256-PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE="
         }
       ]
     },
     {
-      "Route": "css/site.css",
+      "Route": "css/site.6fyukccgoa.css",
       "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/wwwroot/css/site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -2793,7 +2801,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "637"
+          "Value": "16315"
         },
         {
           "Name": "Content-Type",
@@ -2801,121 +2809,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo=\""
+          "Value": "\"PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.css.gz",
-      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-lugek5hnai.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "312"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.lugek5hnai.css",
-      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-lugek5hnai.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.003194888179"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "312"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
         },
         {
           "Name": "Cache-Control",
           "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lugek5hnai"
+          "Value": "6fyukccgoa"
         },
         {
           "Name": "label",
@@ -2923,13 +2831,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo="
+          "Value": "sha256-PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE="
         }
       ]
     },
     {
-      "Route": "css/site.lugek5hnai.css",
-      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/wwwroot/css/site.css",
+      "Route": "css/site.6fyukccgoa.css.gz",
+      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-6fyukccgoa.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -2938,7 +2846,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "637"
+          "Value": "3508"
         },
         {
           "Name": "Content-Type",
@@ -2946,56 +2854,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo=\""
+          "Value": "\"plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "lugek5hnai"
-        },
-        {
-          "Name": "label",
-          "Value": "css/site.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD+cbo="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.lugek5hnai.css.gz",
-      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-lugek5hnai.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "312"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Tue, 31 Mar 2026 14:32:49 GMT"
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3013,7 +2876,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "lugek5hnai"
+          "Value": "6fyukccgoa"
         },
         {
           "Name": "label",
@@ -3021,7 +2884,144 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-Jncz+DGHbq3o3e/i5Y7X2s0zMc8buS/Wz09TLTxmcGo="
+          "Value": "sha256-plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css",
+      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-6fyukccgoa.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000284981476"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3508"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css",
+      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/wwwroot/css/site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "16315"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-PvKA3pa5wGqjcXp6+MlN9VSe5+1NYHGfPzsDwpztYmE="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css.gz",
+      "AssetFile": "/Users/gradycullen/source/Spring2026/GroupProj2/src/PhishGuard/obj/Debug/net9.0/compressed/yi6epmfezn-6fyukccgoa.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3508"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Tue, 31 Mar 2026 20:26:10 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-plaPlvbPffV7kFK9bog6ccDfIeCk5kcQR2oE0HPHT2c="
         }
       ]
     },

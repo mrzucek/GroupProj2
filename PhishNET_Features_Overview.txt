@@ -1,0 +1,159 @@
+PhishNET - Feature Overview for Client
+=======================================
+
+1. COMPANY SECURITY SCORE
+-------------------------
+The Company Security Score represents how well your employees detect
+phishing threats. It is calculated as:
+
+    (Simulations Correctly Reported / Total Simulations Sent) x 100
+
+For example, if 80 out of 100 simulated phishing emails were correctly
+identified and reported by employees, the score is 80%.
+
+A score of 80%+ is considered strong (green), 50-79% is moderate
+(yellow), and below 50% needs improvement (red).
+
+Before launch: We plan to incorporate additional signals into this score,
+such as how quickly employees report threats and click-through rates on
+flagged emails.
+
+
+2. EMAIL BLOCKING (PHISHING SCORE)
+-----------------------------------
+Every incoming email is analyzed across multiple dimensions and assigned
+a threat score from 0-100. The email is then classified as:
+
+    - Safe (score below 30): Delivered normally to the inbox.
+    - Warning (score 30-69): Delivered but flagged as potentially unsafe
+      with an explanation of why it was flagged.
+    - Blocked (score 70+): Automatically moved to the Spam/Quarantine
+      section. Users can still view blocked emails but are warned.
+
+Only dimensions that detect an actual threat contribute to the score.
+If a dimension finds nothing suspicious, it is excluded from the
+average so it does not dilute real threat signals.
+
+An optional AI override (via OpenAI) can adjust the final score using
+the full context of the email. This is disabled by default and can be
+enabled by an administrator.
+
+
+3. LINK RISK SCORE
+------------------
+Every link found in an email is checked in real time when a user views
+the email. Each link receives a colored safety indicator:
+
+    - Green (Safe): Score below 25. Link appears legitimate.
+    - Yellow (Caution): Score 25-59. Some suspicious characteristics.
+    - Red (Don't Click): Score 60+. Likely malicious or phishing.
+
+The link risk score combines two analysis methods:
+
+    - Heuristic analysis (40% weight): Checks the link against our
+      threat database, inspects the domain for lookalikes, follows
+      redirects, and detects file downloads.
+    - AI analysis (60% weight): Sends the URL to Claude AI for deeper
+      pattern recognition, evaluating the URL structure, domain
+      reputation, and context of the link.
+
+If AI analysis is unavailable, the system falls back to heuristic-only
+scoring.
+
+Before launch: We are exploring integration with additional threat
+intelligence feeds for broader coverage of known malicious URLs.
+
+
+4. SCORING DIMENSIONS
+---------------------
+
+THREAT FEED (Weight: 1.0 - highest priority)
+    Checks the sender's email address and domain against a database of
+    known phishing senders, malicious domains, and threat indicators.
+    If there is an exact match, the email receives a score of 85-90.
+    This database grows automatically as administrators confirm employee
+    phishing reports.
+
+LANGUAGE ANALYSIS (Weight: 0.8)
+    Scans the subject line and email body for social engineering tactics
+    using pattern matching. Detects:
+    - Urgency language ("act now", "expires today") - 25 points
+    - Authority manipulation ("CEO", "director") - 30 points
+    - Fear tactics ("account suspended", "security breach") - 35 points
+    - Too-good-to-be-true offers ("you've won", "free gift") - 45 points
+    - Credential requests ("verify your account", "confirm password") - 50 points
+    Scores from multiple matches are added together, capped at 100.
+    Administrators can add, remove, or adjust these rules.
+
+DOMAIN REPUTATION (Weight: 0.9)
+    Analyzes the sender's domain for signs of impersonation:
+    - Lookalike domains: Detects domains that contain brand names like
+      "paypal", "microsoft", or "amazon" but are not the real domain
+      (e.g., paypal-security.xyz scores 60).
+    - Excessive subdomains: Domains with 3+ levels of subdomains are
+      flagged (e.g., login.paypal.com.evil.com scores 30).
+    - IP-based senders: Emails from IP addresses instead of domains
+      score 50.
+
+LINK ANALYSIS (Weight: 1.0 - highest priority)
+    Checks all URLs found in the email body before the email is scored.
+    Each URL is tested against the threat database, checked for domain
+    spoofing, and inspected for redirects and file downloads. The worst
+    (highest) score across all links becomes this dimension's score. If
+    any link is dangerous, the email is treated as dangerous.
+
+
+5. HOW DIMENSION WEIGHTS WORK
+-----------------------------
+Each dimension produces a score (0-100) and has a weight that determines
+its influence on the final overall score:
+
+    Threat Feed:       1.0 (full weight - known threats are definitive)
+    Link Analysis:     1.0 (full weight - dangerous links = dangerous email)
+    Domain Reputation: 0.9 (high weight - spoofed domains are strong signals)
+    Language Analysis:  0.8 (slightly lower - language alone can be ambiguous)
+
+The overall score is the weighted average of only the dimensions that
+found something suspicious. Dimensions that return 0 are excluded to
+prevent dilution of real signals.
+
+Example: An email triggers Language Analysis (score 50) and Domain
+Reputation (score 60), but Threat Feed and Link Analysis find nothing.
+    Overall = (50 x 0.8 + 60 x 0.9) / (0.8 + 0.9) = 94 / 1.7 = 55.3
+    Classification: Warning (between 30 and 70)
+
+
+6. FEATURE ATTRIBUTION
+----------------------
+
+BUILT BY GRADY (via "visualchanges" branch):
+    - Complete PhishNET visual redesign (all pages, CSS, layout)
+    - Split-pane inbox with email preview panel
+    - SVG icon navigation
+    - AI scoring override via OpenAI (AiPhishScoreService)
+    - Scoring engine improvement: skip zero-score dimensions from average
+    - Extended demo email seeding
+    - Admin dashboard visual overhaul
+
+BUILT BY MARCEL (via "fullUpdate" branch):
+    - Link Analysis scoring dimension (dangerous links affect email score)
+    - URL checking during email ingestion (links checked before scoring)
+    - AI-powered real-time link checking via Claude API
+    - Email Ingestion API (POST /api/emails) for external email systems
+    - AI-generated training phishing emails (Claude API)
+    - Spam/Quarantine section for blocked emails
+    - Clerk authentication integration (ready for deployment)
+    - Railway cloud database setup
+    - Environment variable (.env) secret management
+    - Realistic training campaign templates
+
+EXISTING BEFORE BOTH:
+    - Core scoring engine architecture
+    - Threat Feed, Language Analysis, and Domain Reputation scorers
+    - Authentication system (email/password with BCrypt)
+    - URL safety checking service (heuristic analysis)
+    - Training simulation system with difficulty progression
+    - Leaderboard and gamification (points, streaks)
+    - Admin dashboard (reports, scoring rules, threat database)
+    - Employee phishing report workflow
+    - Database schema and Entity Framework setup

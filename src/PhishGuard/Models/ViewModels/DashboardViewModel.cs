@@ -14,12 +14,22 @@ public class EmailViewModel
     public string SenderAddress { get; set; } = string.Empty;
     public string? SenderDisplayName { get; set; }
     public string? Subject { get; set; }
+    public string? BodyPreview { get; set; }
     public DateTime ReceivedAt { get; set; }
     public decimal OverallScore { get; set; }
     public EmailClassification Classification { get; set; }
     public bool IsReported { get; set; }
     public List<string> WarningReasons { get; set; } = new();
     public List<EmailScoreViewModel> Scores { get; set; } = new();
+    public List<EmailUrlViewModel> Urls { get; set; } = new();
+}
+
+public class EmailUrlViewModel
+{
+    public int UrlId { get; set; }
+    public string OriginalUrl { get; set; } = string.Empty;
+    public string? Domain { get; set; }
+    public bool? IsSafe { get; set; }
 }
 
 public class EmailScoreViewModel

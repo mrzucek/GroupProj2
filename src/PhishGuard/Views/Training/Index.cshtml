@@ -6,77 +6,56 @@
     var history = ViewBag.History as List<SimulationEmail> ?? new();
 }
 
-<!-- Training Stats -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Security Training</h2>
-    <div>
-        <a asp-action="Leaderboard" class="btn btn-outline-primary me-2">Leaderboard</a>
-        <form asp-action="SendSimulation" method="post" class="d-inline">
-            <button type="submit" class="btn btn-warning">Send Me a Test Phish</button>
-        </form>
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Training</h1>
+            <p class="pn-page-subtitle">Practice spotting simulated phishing emails and build your streak.</p>
+        </div>
+        <div class="pn-actions">
+            <a asp-action="Leaderboard" class="btn btn-outline-secondary">Leaderboard</a>
+            <form asp-action="SendSimulation" method="post" class="d-inline">
+                <button type="submit" class="btn pn-btn">Send Me a Test Phish</button>
+            </form>
+        </div>
     </div>
-</div>
 
 @if (training != null)
 {
-    <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    <h3 class="text-primary">@training.ScorePoints</h3>
-                    <small class="text-muted">Points</small>
-                </div>
-            </div>
+    <div class="pn-kpi-grid" style="margin-bottom:14px;">
+        <div class="pn-kpi">
+            <div class="pn-kpi-value" style="color:var(--pn-blue);">@training.ScorePoints</div>
+            <div class="pn-kpi-label">Points</div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    <h3>@training.CurrentStreak</h3>
-                    <small class="text-muted">Current Streak</small>
-                </div>
-            </div>
+        <div class="pn-kpi">
+            <div class="pn-kpi-value">@training.CurrentStreak</div>
+            <div class="pn-kpi-label">Current Streak</div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    <h3>@training.BestStreak</h3>
-                    <small class="text-muted">Best Streak</small>
-                </div>
-            </div>
+        <div class="pn-kpi">
+            <div class="pn-kpi-value">@training.BestStreak</div>
+            <div class="pn-kpi-label">Best Streak</div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    <h3 class="text-success">@training.TotalCorrectlyReported</h3>
-                    <small class="text-muted">Caught</small>
-                </div>
-            </div>
+        <div class="pn-kpi">
+            <div class="pn-kpi-value" style="color:#1ca8c7;">@training.TotalCorrectlyReported</div>
+            <div class="pn-kpi-label">Caught</div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    <h3 class="text-danger">@training.TotalClicked</h3>
-                    <small class="text-muted">Missed</small>
-                </div>
-            </div>
+        <div class="pn-kpi">
+            <div class="pn-kpi-value" style="color:#c0392b;">@training.TotalClicked</div>
+            <div class="pn-kpi-label">Missed</div>
         </div>
-        <div class="col-md-2">
-            <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                    @{
-                        var diffColor = training.CurrentDifficulty switch
-                        {
-                            Difficulty.Easy => "text-success",
-                            Difficulty.Medium => "text-warning",
-                            Difficulty.Hard => "text-danger",
-                            Difficulty.Expert => "text-purple",
-                            _ => ""
-                        };
-                    }
-                    <h3 class="@diffColor">@training.CurrentDifficulty</h3>
-                    <small class="text-muted">Difficulty</small>
-                </div>
-            </div>
+        <div class="pn-kpi">
+            @{
+                var diffColor = training.CurrentDifficulty switch
+                {
+                    Difficulty.Easy => "#50b583",
+                    Difficulty.Medium => "#d4920a",
+                    Difficulty.Hard => "#c0392b",
+                    Difficulty.Expert => "#6f42c1",
+                    _ => "var(--pn-text)"
+                };
+            }
+            <div class="pn-kpi-value" style="color:@diffColor">@training.CurrentDifficulty</div>
+            <div class="pn-kpi-label">Difficulty</div>
         </div>
     </div>
 }
@@ -84,9 +63,9 @@
 <!-- Pending Simulations -->
 @if (pending.Any())
 {
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-warning bg-opacity-25">
-            <h5 class="mb-0">Incoming Emails — Review Required (@pending.Count)</h5>
+    <div class="pn-card">
+        <div class="pn-card-header" style="background: rgba(212,146,10,0.12);">
+            <h2 class="pn-card-title">Incoming — Review Required (@pending.Count)</h2>
         </div>
         <div class="list-group list-group-flush">
             @foreach (var sim in pending)
@@ -111,23 +90,23 @@
 }
 else
 {
-    <div class="card shadow-sm mb-4">
-        <div class="card-body text-center py-4 text-muted">
-            <h5>No pending test emails</h5>
-            <p>Click "Send Me a Test Phish" to receive a simulated phishing email and practice your detection skills.</p>
+    <div class="pn-card">
+        <div class="pn-card-body text-center" style="padding:24px;">
+            <div style="font-weight:800;">No pending test emails</div>
+            <div class="text-muted" style="margin-top:6px;">Click “Send Me a Test Phish” to receive a simulated phishing email and practice your detection skills.</div>
         </div>
     </div>
 }
 
 <!-- History -->
-<div class="card shadow-sm">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">Training History</h5>
+<div class="pn-card">
+    <div class="pn-card-header">
+        <h2 class="pn-card-title">Training History</h2>
     </div>
     @if (history.Any())
     {
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="pn-table">
                 <thead>
                     <tr>
                         <th>Date</th>
@@ -139,13 +118,6 @@ else
                 <tbody>
                     @foreach (var sim in history)
                     {
-                        var resultBadge = sim.Result switch
-                        {
-                            SimulationResult.Reported => "bg-success",
-                            SimulationResult.Clicked => "bg-danger",
-                            SimulationResult.NoAction => "bg-secondary",
-                            _ => "bg-info"
-                        };
                         var resultText = sim.Result switch
                         {
                             SimulationResult.Reported => "Caught it!",
@@ -153,15 +125,22 @@ else
                             SimulationResult.NoAction => "Ignored",
                             _ => "Pending"
                         };
+                        var resultPillClass = sim.Result switch
+                        {
+                            SimulationResult.Reported => "inbox-tag inbox-tag--safe",
+                            SimulationResult.Clicked => "inbox-tag inbox-tag--danger",
+                            SimulationResult.NoAction => "inbox-tag inbox-tag--muted",
+                            _ => "inbox-tag inbox-tag--warning"
+                        };
                         <tr>
                             <td>@sim.SentAt.ToString("MMM dd, yyyy")</td>
                             <td>@sim.Campaign.CampaignName</td>
                             <td>
-                                <span class="badge bg-@(sim.Campaign.Difficulty == Difficulty.Easy ? "success" : sim.Campaign.Difficulty == Difficulty.Medium ? "warning" : sim.Campaign.Difficulty == Difficulty.Hard ? "danger" : "dark")">
+                                <span class="inbox-tag inbox-tag--muted">
                                     @sim.Campaign.Difficulty
                                 </span>
                             </td>
-                            <td><span class="badge @resultBadge">@resultText</span></td>
+                            <td><span class="@resultPillClass">@resultText</span></td>
                         </tr>
                     }
                 </tbody>
@@ -170,8 +149,10 @@ else
     }
     else
     {
-        <div class="card-body text-center text-muted">
+        <div class="pn-card-body text-center text-muted">
             No training history yet. Start by receiving your first test phish!
         </div>
     }
+</div>
+
 </div>

@@ -10,18 +10,35 @@ namespace PhishGuard.Controllers;
 public class AccountController : Controller
 {
     private readonly AuthService _auth;
+    private readonly IConfiguration _config;
 
-    public AccountController(AuthService auth)
+    public AccountController(AuthService auth, IConfiguration config)
     {
         _auth = auth;
+        _config = config;
     }
 
+    private bool UseClerk => !string.IsNullOrEmpty(
+        Environment.GetEnvironmentVariable("CLERK_AUTHORITY") ?? _config["Clerk:Authority"]);
+
     [HttpGet]
-    public IActionResult Login() => View();
+    public IActionResult Login()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Dashboard");
+
+        ViewBag.UseClerk = UseClerk;
+        ViewBag.ClerkPublishableKey = Environment.GetEnvironmentVariable("CLERK_PUBLISHABLE_KEY")
+            ?? _config["Clerk:PublishableKey"];
+        ViewBag.ClerkFapiUrl = Environment.GetEnvironmentVariable("CLERK_FAPI_URL") ?? "";
+        return View();
+    }
 
     [HttpPost]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
+        if (UseClerk) return RedirectToAction("Login");
+
         if (!ModelState.IsValid) return View(model);
 
         var employee = await _auth.LoginAsync(model.Email, model.Password);
@@ -40,11 +57,23 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public IActionResult Register() => View();
+    public IActionResult Register()
+    {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Dashboard");
+
+        ViewBag.UseClerk = UseClerk;
+        ViewBag.ClerkPublishableKey = Environment.GetEnvironmentVariable("CLERK_PUBLISHABLE_KEY")
+            ?? _config["Clerk:PublishableKey"];
+        ViewBag.ClerkFapiUrl = Environment.GetEnvironmentVariable("CLERK_FAPI_URL") ?? "";
+        return View();
+    }
 
     [HttpPost]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
+        if (UseClerk) return RedirectToAction("Register");
+
         if (!ModelState.IsValid) return View(model);
 
         var employee = await _auth.RegisterAsync(model.Email, model.DisplayName, model.Password, model.Department);
@@ -61,6 +90,12 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Logout()
     {
+        if (UseClerk)
+        {
+            Response.Cookies.Delete("__session");
+            return RedirectToAction("Login");
+        }
+
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction("Login");
     }
