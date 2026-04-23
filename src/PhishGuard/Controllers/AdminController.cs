@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhishGuard.Data;
 using PhishGuard.Models;
+using PhishGuard.Services;
 using System.Security.Claims;
 
 namespace PhishGuard.Controllers;
@@ -11,10 +12,12 @@ namespace PhishGuard.Controllers;
 public class AdminController : Controller
 {
     private readonly PhishGuardContext _db;
+    private readonly OpenAiEmailGeneratorService _emailGenerator;
 
-    public AdminController(PhishGuardContext db)
+    public AdminController(PhishGuardContext db, OpenAiEmailGeneratorService emailGenerator)
     {
         _db = db;
+        _emailGenerator = emailGenerator;
     }
 
     private int GetEmployeeId() =>
@@ -231,7 +234,8 @@ public class AdminController : Controller
             _db.SimulationEmails.Add(new SimulationEmail
             {
                 CampaignId = campaign.CampaignId,
-                TargetEmployeeId = employee.EmployeeId
+                TargetEmployeeId = employee.EmployeeId,
+                RequiresLoginQuiz = true
             });
 
             training.TotalSimulationsReceived++;
@@ -242,6 +246,171 @@ public class AdminController : Controller
         await _db.SaveChangesAsync();
 
         TempData["Success"] = $"Sent simulated phishing emails to {sent} employees at their individual difficulty levels.";
+        return RedirectToAction("Index");
+    }
+
+    // ── Trusted Domains ──────────────────────────────────────────────────────
+
+    public async Task<IActionResult> TrustedDomains()
+    {
+        var domains = await _db.TrustedDomains
+            .Include(t => t.CreatedBy)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
+        return View(domains);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddTrustedDomain(string domain, string? notes)
+    {
+        // Normalize
+        var normalized = domain?.Trim()
+            .Replace("https://", "").Replace("http://", "")
+            .TrimStart('w').TrimStart('w').TrimStart('w').TrimStart('.')
+            .TrimEnd('/') ?? "";
+
+        // Simpler normalization: strip scheme and www
+        if (normalized.StartsWith("www.")) normalized = normalized[4..];
+
+        if (string.IsNullOrWhiteSpace(normalized) || normalized.Contains(' '))
+        {
+            TempData["Error"] = "Invalid domain. Please enter a valid domain without spaces.";
+            return RedirectToAction("TrustedDomains");
+        }
+
+        var duplicate = await _db.TrustedDomains.AnyAsync(t => t.Domain.ToLower() == normalized.ToLower());
+        if (duplicate)
+        {
+            TempData["Error"] = $"'{normalized}' is already on the trusted list.";
+            return RedirectToAction("TrustedDomains");
+        }
+
+        _db.TrustedDomains.Add(new TrustedDomain
+        {
+            Domain = normalized.ToLower(),
+            Notes = notes?.Trim(),
+            CreatedById = GetEmployeeId(),
+            CreatedAt = DateTime.UtcNow
+        });
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = $"'{normalized}' added to trusted domains.";
+        return RedirectToAction("TrustedDomains");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteTrustedDomain(int id)
+    {
+        var domain = await _db.TrustedDomains.FindAsync(id);
+        if (domain != null)
+        {
+            _db.TrustedDomains.Remove(domain);
+            await _db.SaveChangesAsync();
+            TempData["Success"] = $"'{domain.Domain}' removed from trusted list.";
+        }
+        return RedirectToAction("TrustedDomains");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateTrustedDomain(int trustedDomainId, string domain, string? notes)
+    {
+        var entry = await _db.TrustedDomains.FindAsync(trustedDomainId);
+        if (entry == null) return NotFound();
+
+        var normalized = domain?.Trim().Replace("https://", "").Replace("http://", "").TrimEnd('/') ?? "";
+        if (normalized.StartsWith("www.")) normalized = normalized[4..];
+
+        entry.Domain = normalized.ToLower();
+        entry.Notes = notes?.Trim();
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = "Trusted domain updated.";
+        return RedirectToAction("TrustedDomains");
+    }
+
+    // ── Employee Management ───────────────────────────────────────────────────
+
+    [HttpPost]
+    public async Task<IActionResult> AddEmployee(string displayName, string email, string password, string? department, string role)
+    {
+        if (string.IsNullOrWhiteSpace(displayName) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            TempData["Error"] = "Display name, email, and password are required.";
+            return RedirectToAction("Index");
+        }
+
+        var exists = await _db.Employees.AnyAsync(e => e.Email.ToLower() == email.ToLower());
+        if (exists)
+        {
+            TempData["Error"] = $"An account with email '{email}' already exists.";
+            return RedirectToAction("Index");
+        }
+
+        var employeeRole = role == "Admin" ? EmployeeRole.Admin : EmployeeRole.Employee;
+        var hash = BCrypt.Net.BCrypt.HashPassword(password);
+
+        var employee = new Employee
+        {
+            Email = email.Trim().ToLower(),
+            DisplayName = displayName.Trim(),
+            Department = department?.Trim(),
+            Role = employeeRole,
+            PasswordHash = hash,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        _db.Employees.Add(employee);
+        await _db.SaveChangesAsync();
+
+        _db.EmployeeTrainings.Add(new EmployeeTraining { EmployeeId = employee.EmployeeId });
+        await _db.SaveChangesAsync();
+
+        // Seed inbox for the new employee
+        await _emailGenerator.SeedEmailsForUserAsync(employee.EmployeeId, employee.DisplayName, employee.Email);
+
+        TempData["Success"] = $"Employee '{displayName}' created successfully.";
+        return RedirectToAction("Index");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteEmployee(int id)
+    {
+        var currentId = GetEmployeeId();
+
+        var employee = await _db.Employees.FindAsync(id);
+        if (employee == null)
+        {
+            TempData["Error"] = "Employee not found.";
+            return RedirectToAction("Index");
+        }
+        if (employee.Role == EmployeeRole.Admin)
+        {
+            TempData["Error"] = "Admin accounts cannot be deleted.";
+            return RedirectToAction("Index");
+        }
+        if (employee.EmployeeId == currentId)
+        {
+            TempData["Error"] = "You cannot delete your own account.";
+            return RedirectToAction("Index");
+        }
+
+        // Remove related records if cascade isn't configured
+        var emails = _db.Emails.Where(e => e.RecipientId == id);
+        _db.Emails.RemoveRange(emails);
+
+        var sims = _db.SimulationEmails.Where(s => s.TargetEmployeeId == id);
+        _db.SimulationEmails.RemoveRange(sims);
+
+        var training = await _db.EmployeeTrainings.FirstOrDefaultAsync(t => t.EmployeeId == id);
+        if (training != null) _db.EmployeeTrainings.Remove(training);
+
+        var reports = _db.PhishingReports.Where(r => r.ReportedBy == id);
+        _db.PhishingReports.RemoveRange(reports);
+
+        _db.Employees.Remove(employee);
+        await _db.SaveChangesAsync();
+
+        TempData["Success"] = $"Employee '{employee.DisplayName}' deleted.";
         return RedirectToAction("Index");
     }
 }

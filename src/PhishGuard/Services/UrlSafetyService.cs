@@ -31,6 +31,17 @@ public class UrlSafetyService
             return result;
         }
 
+        // 0. Short-circuit if domain is on the trusted list
+        var isTrusted = await _db.TrustedDomains
+            .AnyAsync(t => t.Domain.ToLower() == result.Domain!.ToLower());
+        if (isTrusted)
+        {
+            result.IsSafe = true;
+            result.ThreatScore = 0;
+            result.Reasons.Add("Domain is on the trusted list");
+            return result;
+        }
+
         // 1. Check against our threat indicator database
         await CheckThreatDatabase(result);
 

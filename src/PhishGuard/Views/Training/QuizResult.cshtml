@@ -1,0 +1,192 @@
+@model PhishGuard.Models.ViewModels.QuizResultViewModel
+@{ ViewData["Title"] = "Training Result"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<style>
+    .result-page {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 60px 16px;
+        background: #0d1117;
+    }
+    .result-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 16px;
+        max-width: 600px;
+        width: 100%;
+        overflow: hidden;
+    }
+    .result-banner {
+        padding: 32px 32px 24px;
+        text-align: center;
+        border-bottom: 1px solid #21262d;
+    }
+    .result-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+    }
+    .result-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+    .result-title--correct { color: #50b583; }
+    .result-title--wrong { color: #c0392b; }
+    .result-subtitle {
+        color: #8b949e;
+        font-size: 0.95rem;
+    }
+    .result-body {
+        padding: 24px 32px;
+    }
+    .result-section-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #8b949e;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+    }
+    .phish-email-box {
+        background: #0d1117;
+        border: 1px solid #c0392b40;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+    }
+    .phish-email-sender {
+        font-weight: 600;
+        color: #e6edf3;
+        font-size: 0.92rem;
+    }
+    .phish-email-address {
+        color: #c0392b;
+        font-size: 0.82rem;
+    }
+    .phish-email-subject {
+        color: #8b949e;
+        font-size: 0.88rem;
+        margin-top: 4px;
+    }
+    .indicators-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .indicators-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #21262d;
+        color: #8b949e;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .indicators-list li:last-child { border-bottom: none; }
+    .indicators-list li::before {
+        content: "⚠";
+        color: #d4920a;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    .score-impact {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+    .score-impact-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    .score-impact-value--gain { color: #50b583; }
+    .score-impact-value--loss { color: #c0392b; }
+    .score-impact-label {
+        color: #8b949e;
+        font-size: 0.88rem;
+    }
+    .continue-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: #1a6fb5;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .continue-btn:hover {
+        background: #1558a0;
+        color: #fff;
+    }
+</style>
+
+<div class="result-page">
+    <div class="result-card">
+        <div class="result-banner">
+            @if (Model.IsCorrect)
+            {
+                <div class="result-icon">✓</div>
+                <div class="result-title result-title--correct">Correct!</div>
+                <div class="result-subtitle">You identified the phishing email.</div>
+            }
+            else
+            {
+                <div class="result-icon">✗</div>
+                <div class="result-title result-title--wrong">Incorrect</div>
+                <div class="result-subtitle">You selected the wrong email. Here's what you missed.</div>
+            }
+        </div>
+
+        <div class="result-body">
+            <!-- Score impact -->
+            <div class="score-impact">
+                @if (Model.IsCorrect)
+                {
+                    <div class="score-impact-value score-impact-value--gain">+@Model.PointsAwarded pts</div>
+                    <div class="score-impact-label">Points awarded for correctly identifying the phishing email</div>
+                }
+                else
+                {
+                    <div class="score-impact-value score-impact-value--loss">Streak reset</div>
+                    <div class="score-impact-label">Your streak was reset. Keep practising to build it back up.</div>
+                }
+            </div>
+
+            <!-- The actual phishing email -->
+            <div class="result-section-title">The phishing email was</div>
+            <div class="phish-email-box">
+                <div class="phish-email-sender">@Model.PhishSenderDisplay</div>
+                <div class="phish-email-address">@Model.PhishSenderAddress</div>
+                <div class="phish-email-subject">Subject: @Model.PhishSubject</div>
+            </div>
+
+            <!-- Indicators -->
+            @if (!string.IsNullOrWhiteSpace(Model.PhishingIndicators))
+            {
+                <div class="result-section-title">Key phishing indicators</div>
+                <ul class="indicators-list">
+                    @foreach (var indicator in Model.PhishingIndicators.Split('.', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries).Take(4))
+                    {
+                        <li>@indicator</li>
+                    }
+                </ul>
+            }
+
+            <div style="margin-top: 28px;">
+                <a href="/Dashboard/Index" class="continue-btn">Continue to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>

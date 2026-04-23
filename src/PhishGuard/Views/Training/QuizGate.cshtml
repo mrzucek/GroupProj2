@@ -1,0 +1,188 @@
+@model PhishGuard.Models.ViewModels.QuizGateViewModel
+@{ ViewData["Title"] = "Security Training"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<style>
+    .quiz-overlay {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px 60px;
+        background: #0d1117;
+    }
+    .quiz-container {
+        width: 100%;
+        max-width: 960px;
+    }
+    .quiz-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    .quiz-badge {
+        display: inline-block;
+        background: #1a6fb520;
+        color: #1a6fb5;
+        border: 1px solid #1a6fb540;
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+    }
+    .quiz-title {
+        font-size: 1.55rem;
+        font-weight: 700;
+        color: #e6edf3;
+        margin-bottom: 8px;
+    }
+    .quiz-subtitle {
+        color: #8b949e;
+        font-size: 0.95rem;
+    }
+    .email-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color 0.15s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .email-card-header {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid #21262d;
+    }
+    .email-card-sender-display {
+        font-weight: 600;
+        color: #e6edf3;
+        font-size: 0.97rem;
+    }
+    .email-card-sender-address {
+        color: #8b949e;
+        font-size: 0.82rem;
+        margin-top: 2px;
+    }
+    .email-card-subject {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #e6edf3;
+        margin: 12px 0 0;
+    }
+    .email-card-body {
+        padding: 16px 20px;
+        color: #8b949e;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        flex: 1;
+    }
+    .email-card-footer {
+        padding: 14px 20px;
+        border-top: 1px solid #21262d;
+    }
+    .quiz-btn {
+        width: 100%;
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #e6edf3;
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+    }
+    .quiz-btn:hover {
+        background: #c0392b20;
+        border-color: #c0392b80;
+        color: #e6edf3;
+    }
+    .quiz-divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8b949e;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 0 8px;
+        min-width: 40px;
+    }
+</style>
+
+<div class="quiz-overlay">
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <div class="quiz-badge">Security Training</div>
+            <h1 class="quiz-title">Identify the Phishing Email</h1>
+            <p class="quiz-subtitle">One of these emails is a phishing attempt. Select the one you believe is malicious.</p>
+        </div>
+
+        <div class="row g-3 align-items-stretch">
+            @{
+                // Determine left/right assignments
+                bool phishIsLeft = Model.PhishingSlot == "left";
+
+                var leftSenderDisplay = phishIsLeft ? Model.PhishSenderDisplay : Model.LegitSenderDisplay;
+                var leftSenderAddress = phishIsLeft ? Model.PhishSenderAddress : Model.LegitSenderAddress;
+                var leftSubject = phishIsLeft ? Model.PhishSubject : Model.LegitSubject;
+                var leftBody = phishIsLeft ? Model.PhishBodyPreview : Model.LegitBodyPreview;
+                var leftSlot = "left";
+
+                var rightSenderDisplay = phishIsLeft ? Model.LegitSenderDisplay : Model.PhishSenderDisplay;
+                var rightSenderAddress = phishIsLeft ? Model.LegitSenderAddress : Model.PhishSenderAddress;
+                var rightSubject = phishIsLeft ? Model.LegitSubject : Model.PhishSubject;
+                var rightBody = phishIsLeft ? Model.LegitBodyPreview : Model.PhishBodyPreview;
+                var rightSlot = "right";
+            }
+
+            <!-- Left email card -->
+            <div class="col-md-5">
+                <div class="email-card">
+                    <div class="email-card-header">
+                        <div class="email-card-sender-display">@leftSenderDisplay</div>
+                        <div class="email-card-sender-address">@leftSenderAddress</div>
+                        <div class="email-card-subject">@leftSubject</div>
+                    </div>
+                    <div class="email-card-body">
+                        @leftBody
+                    </div>
+                    <div class="email-card-footer">
+                        <form asp-action="QuizGate" method="post">
+                            <input type="hidden" name="simulationEmailId" value="@Model.SimulationId" />
+                            <input type="hidden" name="selectedSlot" value="@leftSlot" />
+                            <button type="submit" class="quiz-btn">This is the phishing email</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VS divider -->
+            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                <div class="quiz-divider">VS</div>
+            </div>
+
+            <!-- Right email card -->
+            <div class="col-md-5">
+                <div class="email-card">
+                    <div class="email-card-header">
+                        <div class="email-card-sender-display">@rightSenderDisplay</div>
+                        <div class="email-card-sender-address">@rightSenderAddress</div>
+                        <div class="email-card-subject">@rightSubject</div>
+                    </div>
+                    <div class="email-card-body">
+                        @rightBody
+                    </div>
+                    <div class="email-card-footer">
+                        <form asp-action="QuizGate" method="post">
+                            <input type="hidden" name="simulationEmailId" value="@Model.SimulationId" />
+                            <input type="hidden" name="selectedSlot" value="@rightSlot" />
+                            <button type="submit" class="quiz-btn">This is the phishing email</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

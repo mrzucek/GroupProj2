@@ -34,7 +34,11 @@
             <button class="inbox-filter" data-filter="safe">Safe</button>
         </div>
 
-        <div class="inbox-list">
+        <div class="inbox-search-wrapper" id="inbox-search-wrapper">
+            <input type="text" id="inbox-search" class="form-control form-control-sm" placeholder="Search emails..." autocomplete="off">
+        </div>
+
+        <div class="inbox-list" id="inbox-list">
             @if (!Model.RecentEmails.Any())
             {
                 <div class="inbox-empty">
@@ -234,18 +238,62 @@
 
 @section Scripts {
 <script>
+    let activeFilter = 'all';
+
+    function applyFilters() {
+        const query = document.getElementById('inbox-search').value.trim().toLowerCase();
+        document.querySelectorAll('.inbox-row').forEach(row => {
+            const cls = row.dataset.classification;
+            const tabMatch = activeFilter === 'all' ? cls !== 'blocked' : cls === activeFilter;
+            if (!tabMatch) { row.style.display = 'none'; return; }
+            if (query) {
+                const sender = (row.querySelector('.inbox-sender')?.textContent || '').toLowerCase();
+                const subject = (row.querySelector('.inbox-subject')?.textContent || '').toLowerCase();
+                const snippet = (row.querySelector('.inbox-snippet')?.textContent || '').toLowerCase();
+                const emailId = row.dataset.emailId;
+                // also search sender address from detail pane
+                const detail = document.getElementById('detail-' + emailId);
+                const senderAddr = detail ? (detail.querySelector('.inbox-detail-from')?.textContent || '').toLowerCase() : '';
+                const searchMatch = sender.includes(query) || subject.includes(query) || snippet.includes(query) || senderAddr.includes(query);
+                row.style.display = searchMatch ? '' : 'none';
+            } else {
+                row.style.display = '';
+            }
+        });
+    }
+
     // Filter buttons
     document.querySelectorAll('.inbox-filter').forEach(btn => {
         btn.addEventListener('click', function () {
             document.querySelectorAll('.inbox-filter').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            const filter = this.dataset.filter;
-            document.querySelectorAll('.inbox-row').forEach(row => {
-                const match = filter === 'all' || row.dataset.classification === filter;
-                row.style.display = match ? '' : 'none';
-            });
+            activeFilter = this.dataset.filter;
+            applyFilters();
         });
     });
+
+    // Search input
+    document.getElementById('inbox-search').addEventListener('input', applyFilters);
+
+    // Initial render: hide blocked from "all" tab
+    applyFilters();
+
+    // Gmail-style search bar hide/show on scroll
+    const inboxList = document.getElementById('inbox-list');
+    const searchWrapper = document.getElementById('inbox-search-wrapper');
+    let lastScrollTop = 0;
+
+    inboxList.addEventListener('scroll', function () {
+        const currentScrollTop = inboxList.scrollTop;
+        if (currentScrollTop > lastScrollTop && currentScrollTop > 10) {
+            // Scrolling down — hide search
+            searchWrapper.classList.add('search-hidden');
+        } else {
+            // Scrolling up — show search
+            searchWrapper.classList.remove('search-hidden');
+        }
+        lastScrollTop = currentScrollTop;
+    }, { passive: true });
 
     // Click row to show detail in right pane
     document.querySelectorAll('.inbox-row').forEach(row => {

@@ -1,0 +1,125 @@
+@model List<PhishGuard.Models.TrustedDomain>
+@{ ViewData["Title"] = "Trusted Domains"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+<div class="pn-page">
+    <div class="pn-page-header">
+        <div>
+            <h1 class="pn-page-title">Trusted Domains</h1>
+            <p class="pn-page-subtitle">Emails from these domains will never be blocked or flagged.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">← Back to Dashboard</a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Add Domain Form -->
+    <div class="pn-card" style="margin-bottom:14px;">
+        <div class="pn-card-header">
+            <h2 class="pn-card-title">Add Trusted Domain</h2>
+        </div>
+        <div class="pn-card-body">
+            <form asp-action="AddTrustedDomain" method="post">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label">Domain</label>
+                        <input type="text" name="domain" class="form-control" placeholder="e.g. microsoft.com" required />
+                        <div class="form-text">Enter the domain only — no https:// or www.</div>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">Notes (optional)</label>
+                        <input type="text" name="notes" class="form-control" placeholder="Why this domain is trusted" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn pn-btn w-100">Add Domain</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Domains Table -->
+    <div class="pn-card">
+        <div class="pn-card-header">
+            <h2 class="pn-card-title">Trusted Domains (@Model.Count)</h2>
+        </div>
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="pn-table">
+                    <thead>
+                        <tr>
+                            <th>Domain</th>
+                            <th>Notes</th>
+                            <th>Added By</th>
+                            <th>Date Added</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var td in Model)
+                        {
+                            <tr>
+                                <td><strong>@td.Domain</strong></td>
+                                <td><small class="text-muted">@(td.Notes ?? "—")</small></td>
+                                <td>@(td.CreatedBy?.DisplayName ?? "Admin")</td>
+                                <td><small>@td.CreatedAt.ToString("MMM d, yyyy")</small></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-secondary"
+                                            onclick="toggleEdit(@td.TrustedDomainId)">Edit</button>
+                                    <form asp-action="DeleteTrustedDomain" method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove @td.Domain from trusted list?')">
+                                        <input type="hidden" name="id" value="@td.TrustedDomainId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr id="edit-row-@td.TrustedDomainId" style="display:none; background:#161b22;">
+                                <td colspan="5">
+                                    <form asp-action="UpdateTrustedDomain" method="post" class="d-flex gap-2 align-items-end p-2">
+                                        <input type="hidden" name="trustedDomainId" value="@td.TrustedDomainId" />
+                                        <div>
+                                            <label class="form-label form-label-sm">Domain</label>
+                                            <input type="text" name="domain" class="form-control form-control-sm" value="@td.Domain" required style="min-width:200px;" />
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <label class="form-label form-label-sm">Notes</label>
+                                            <input type="text" name="notes" class="form-control form-control-sm" value="@td.Notes" />
+                                        </div>
+                                        <button type="submit" class="btn btn-sm pn-btn">Save</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleEdit(@td.TrustedDomainId)">Cancel</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="pn-card-body text-center text-muted">No trusted domains yet. Add one above.</div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function toggleEdit(id) {
+        const row = document.getElementById('edit-row-' + id);
+        row.style.display = row.style.display === 'none' ? '' : 'none';
+    }
+</script>
+}

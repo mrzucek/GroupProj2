@@ -4,6 +4,22 @@
 @{ ViewData["Title"] = "Admin Dashboard"; }
 
 <div class="pn-page">
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="pn-page-header">
         <div>
             <h1 class="pn-page-title">Admin</h1>
@@ -12,10 +28,11 @@
         <div class="pn-actions">
             <a asp-action="ScoringRules" class="btn btn-outline-secondary">Scoring Rules</a>
             <a asp-action="ThreatDatabase" class="btn btn-outline-secondary">Threat Database</a>
+            <a asp-action="TrustedDomains" class="btn btn-outline-secondary">Trusted Domains</a>
             <form asp-action="SendCompanySimulation" method="post" class="d-inline">
                 <button type="submit" class="btn pn-btn"
-                        onclick="return confirm('Send simulated phishing emails to all employees?')">
-                    Send Simulation
+                        onclick="return confirm('Send test phish to all employees? They will be prompted to identify the phishing email on their next login.')">
+                    Send Test Phish
                 </button>
             </form>
         </div>
@@ -80,6 +97,35 @@
     <div class="pn-kpi">
         <div class="pn-kpi-value">@Model.ActiveThreatIndicators</div>
         <div class="pn-kpi-label">Threat Indicators</div>
+    </div>
+</div>
+
+<!-- Phishing Spot-Check Trainer -->
+<div class="pn-card" style="margin-bottom:14px;">
+    <div class="pn-card-header">
+        <div>
+            <h2 class="pn-card-title">Phishing Spot Check</h2>
+            <p class="pn-page-subtitle" style="margin:0; font-size:0.8rem;">Two nearly identical emails — one is phishing. Can you tell which?</p>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-3">
+            <span class="trainer-score-display">Score: <span class="trainer-score-num" id="trainer-score">0</span> / <span id="trainer-total">0</span></span>
+            <button class="btn btn-sm pn-btn" id="trainer-next-btn" style="display:none;">Next</button>
+        </div>
+    </div>
+    <div class="pn-card-body">
+        <div style="text-align:center; margin-bottom:14px;">
+            <span class="inbox-tag inbox-tag--muted" id="trainer-counter">Scenario 1 of 5</span>
+        </div>
+        <div class="trainer-pair" id="trainer-pair">
+            <div class="trainer-email" id="trainer-email-a" onclick="trainerSelect('a')"></div>
+            <div class="trainer-email" id="trainer-email-b" onclick="trainerSelect('b')"></div>
+        </div>
+        <div id="trainer-feedback" style="display:none;"></div>
+        <div id="trainer-done" style="display:none; text-align:center; padding:24px 0;">
+            <p style="font-size:1.1rem; font-weight:600; color:var(--pn-text);">Training complete!</p>
+            <p class="text-muted" style="font-size:0.88rem;">You scored <strong id="trainer-final-score"></strong> out of 5.</p>
+            <button class="btn btn-sm pn-btn mt-2" onclick="trainerInit()">Try Again</button>
+        </div>
     </div>
 </div>
 
@@ -163,8 +209,48 @@
     <div class="col-md-8">
         <div class="pn-card" style="margin-bottom:14px;">
             <div class="pn-card-header">
-                <h2 class="pn-card-title">Employee Performance</h2>
+                <h2 class="pn-card-title" style="margin-right:auto;">Employee Performance</h2>
+                <button class="btn btn-sm pn-btn" type="button" data-bs-toggle="collapse" data-bs-target="#addEmployeeForm">
+                    + Add Employee
+                </button>
             </div>
+
+            <!-- Add Employee Collapse Form -->
+            <div class="collapse" id="addEmployeeForm">
+                <div class="pn-card-body" style="border-bottom:1px solid #21262d;">
+                    <form asp-action="AddEmployee" method="post">
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <label class="form-label form-label-sm">Display Name *</label>
+                                <input type="text" name="displayName" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label form-label-sm">Email *</label>
+                                <input type="email" name="email" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label form-label-sm">Password *</label>
+                                <input type="password" name="password" class="form-control form-control-sm" required />
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label form-label-sm">Department</label>
+                                <input type="text" name="department" class="form-control form-control-sm" />
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label form-label-sm">Role</label>
+                                <select name="role" class="form-select form-select-sm">
+                                    <option value="Employee">Employee</option>
+                                    <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="submit" class="btn btn-sm pn-btn w-100">Create</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="pn-table">
                     <thead>
@@ -175,6 +261,7 @@
                             <th>Caught</th>
                             <th>Missed</th>
                             <th>Detection Rate</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -185,7 +272,7 @@
                                 : 0;
                             var rateColor = rate >= 80 ? "text-success" : rate >= 50 ? "text-warning" : "text-danger";
                             <tr>
-                                <td>@t.Employee.DisplayName</td>
+                                <td>@t.Employee.DisplayName<br/><small class="text-muted">@t.Employee.Email</small></td>
                                 <td><strong>@t.ScorePoints</strong></td>
                                 <td>
                                     <span class="inbox-tag inbox-tag--muted">@t.CurrentDifficulty</span>
@@ -193,6 +280,12 @@
                                 <td class="text-success">@t.TotalCorrectlyReported</td>
                                 <td class="text-danger">@t.TotalClicked</td>
                                 <td><strong class="@rateColor">@rate%</strong></td>
+                                <td>
+                                    <form asp-action="DeleteEmployee" asp-route-id="@t.EmployeeId" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete @t.Employee.DisplayName? This cannot be undone.')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -226,3 +319,241 @@
 </div>
 
 </div>
+
+@section Scripts {
+<script>
+const SCENARIOS = [
+    {
+        id: 1,
+        a: {
+            fromName: "Microsoft Support",
+            fromAddr: "support@microsoft.com",
+            subject: "Unusual sign-in activity on your account",
+            body: "We detected a sign-in from a new location. If this was you, no action is needed. Otherwise, review your security settings."
+        },
+        b: {
+            fromName: "Microsoft Support",
+            fromAddr: "support@micros0ft.com",
+            subject: "Unusual sign-in activity on your account",
+            body: "We detected a sign-in from a new location. If this was you, no action is needed. Otherwise, review your security settings."
+        },
+        phish: 'b',
+        diffField: 'fromAddr',
+        diffPart: 'micros0ft',
+        explain: 'The sender address uses a zero ("0") in place of the letter "o" — micros<strong>0</strong>ft.com. Attackers register look-alike domains to impersonate trusted brands.'
+    },
+    {
+        id: 2,
+        a: {
+            fromName: "PayPal",
+            fromAddr: "service@paypal.com.account-verify.net",
+            subject: "Action Required: Verify your PayPal account",
+            body: "Your PayPal account has been temporarily limited. Please verify your information within 24 hours to restore full access."
+        },
+        b: {
+            fromName: "PayPal",
+            fromAddr: "service@paypal.com",
+            subject: "Action Required: Verify your PayPal account",
+            body: "Your PayPal account has been temporarily limited. Please verify your information within 24 hours to restore full access."
+        },
+        phish: 'a',
+        diffField: 'fromAddr',
+        diffPart: 'paypal.com.account-verify.net',
+        explain: 'The real domain is everything <em>after</em> the last "@@". Here it\'s <strong>account-verify.net</strong>, not paypal.com. The "paypal.com" part is just a subdomain used to deceive you.'
+    },
+    {
+        id: 3,
+        a: {
+            fromName: "Amazon",
+            fromAddr: "no-reply@amazon.com",
+            subject: "Your order has shipped",
+            body: "Your order #112-4938821-0021 has shipped and is on its way. Track your package using the link in your account."
+        },
+        b: {
+            fromName: "Amazon",
+            fromAddr: "no-reply@amaz0n-orders.com",
+            subject: "Your order has shipped",
+            body: "Your order #112-4938821-0021 has shipped and is on its way. Track your package using the link in your account."
+        },
+        phish: 'b',
+        diffField: 'fromAddr',
+        diffPart: 'amaz0n-orders.com',
+        explain: 'The domain is <strong>amaz0n-orders.com</strong> — a zero replaces "o", plus a hyphenated suffix. Amazon only sends mail from amazon.com.'
+    },
+    {
+        id: 4,
+        a: {
+            fromName: "IT Helpdesk",
+            fromAddr: "it-support@yourcompany.org",
+            subject: "Password expiring — action needed",
+            body: "Your network password expires in 2 days. Please update it via the internal portal before it locks your account."
+        },
+        b: {
+            fromName: "IT Helpdesk",
+            fromAddr: "it-supp0rt@yourcompany.org",
+            subject: "Password expiring — action needed",
+            body: "Your network password expires in 2 days. Please update it via the internal portal before it locks your account."
+        },
+        phish: 'b',
+        diffField: 'fromAddr',
+        diffPart: 'it-supp0rt',
+        explain: '"supp<strong>0</strong>rt" uses a zero instead of the letter "o". Even internal-looking addresses can be spoofed — always verify by checking with IT directly before resetting credentials.'
+    },
+    {
+        id: 5,
+        a: {
+            fromName: "DocuSign",
+            fromAddr: "dse@docusign.net",
+            subject: "You have a document ready to sign",
+            body: "HR has sent you a Benefits Enrollment Agreement for review and signature. This link expires in 48 hours."
+        },
+        b: {
+            fromName: "DocuSign",
+            fromAddr: "dse@docusign-esign.com",
+            subject: "You have a document ready to sign",
+            body: "HR has sent you a Benefits Enrollment Agreement for review and signature. This link expires in 48 hours."
+        },
+        phish: 'b',
+        diffField: 'fromAddr',
+        diffPart: 'docusign-esign.com',
+        explain: 'DocuSign sends from <strong>docusign.net</strong> and docusign.com. The domain <strong>docusign-esign.com</strong> is a registered lookalike — the hyphenated addition is a classic phishing tell.'
+    }
+];
+
+let current = 0;
+let score = 0;
+let locked = false;
+const avatarColors = ["#1a6fb5","#1ca8c7","#50b583","#e07c54","#9b6ec5","#d4a843"];
+
+function getColor(name) {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+    return avatarColors[Math.abs(h) % avatarColors.length];
+}
+
+function renderEmail(elId, data, isPhish, reveal) {
+    const el = document.getElementById(elId);
+    el.className = 'trainer-email';
+    el.innerHTML = `
+        <div class="trainer-email-header">
+            <div class="trainer-avatar" style="background:${getColor(data.fromName)}">${data.fromName[0]}</div>
+            <div class="trainer-from-block">
+                <div class="trainer-from-name">${data.fromName}</div>
+                <div class="trainer-from-addr">${escHtml(data.fromAddr)}</div>
+            </div>
+        </div>
+        <div class="trainer-subject">${escHtml(data.subject)}</div>
+        <div class="trainer-body">${escHtml(data.body)}</div>
+        ${reveal && isPhish ? '<span class="trainer-badge trainer-badge-phish">Phishing</span>' : ''}
+        ${reveal && !isPhish ? '<span class="trainer-badge trainer-badge-legit">Legitimate</span>' : ''}
+    `;
+}
+
+function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function trainerInit() {
+    current = 0;
+    score = 0;
+    locked = false;
+    document.getElementById('trainer-score').textContent = '0';
+    document.getElementById('trainer-total').textContent = '0';
+    document.getElementById('trainer-done').style.display = 'none';
+    document.getElementById('trainer-pair').style.display = '';
+    document.getElementById('trainer-feedback').style.display = 'none';
+    document.getElementById('trainer-next-btn').style.display = 'none';
+    loadScenario();
+}
+
+function loadScenario() {
+    locked = false;
+    const s = SCENARIOS[current];
+    document.getElementById('trainer-counter').textContent = `Scenario ${current + 1} of ${SCENARIOS.length}`;
+    document.getElementById('trainer-feedback').style.display = 'none';
+    document.getElementById('trainer-next-btn').style.display = 'none';
+
+    // Randomise which side the phish is on
+    const flip = Math.random() < 0.5;
+    const leftIsPhish = (s.phish === 'a' && !flip) || (s.phish === 'b' && flip);
+
+    const emailA = leftIsPhish ? (s.phish === 'a' ? s.a : s.b) : (s.phish === 'a' ? s.b : s.a);
+    const emailB = leftIsPhish ? (s.phish === 'b' ? s.b : s.a) : (s.phish === 'b' ? s.a : s.b);
+
+    // Store which side is actually phishing for this render
+    document.getElementById('trainer-email-a').dataset.isPhish = leftIsPhish ? 'true' : 'false';
+    document.getElementById('trainer-email-b').dataset.isPhish = leftIsPhish ? 'false' : 'true';
+
+    renderEmail('trainer-email-a', emailA, leftIsPhish, false);
+    renderEmail('trainer-email-b', emailB, !leftIsPhish, false);
+
+    // Re-attach onclick (lost on innerHTML overwrite of parent)
+    document.getElementById('trainer-email-a').onclick = () => trainerSelect('a');
+    document.getElementById('trainer-email-b').onclick = () => trainerSelect('b');
+}
+
+function trainerSelect(side) {
+    if (locked) return;
+    locked = true;
+
+    const s = SCENARIOS[current];
+    const elA = document.getElementById('trainer-email-a');
+    const elB = document.getElementById('trainer-email-b');
+
+    const aIsPhish = elA.dataset.isPhish === 'true';
+    const chosenIsPhish = side === 'a' ? aIsPhish : !aIsPhish;
+    const correct = chosenIsPhish;
+
+    // Re-render both with reveal badges (this resets className to 'trainer-email')
+    renderEmail('trainer-email-a', getScenarioData(s, aIsPhish), aIsPhish, true);
+    renderEmail('trainer-email-b', getScenarioData(s, !aIsPhish), !aIsPhish, true);
+
+    // Apply result classes after render
+    if (side === 'a') {
+        elA.classList.add(correct ? 'trainer-correct' : 'trainer-wrong');
+        elB.classList.add(aIsPhish ? 'trainer-correct' : 'trainer-reveal');
+    } else {
+        elB.classList.add(correct ? 'trainer-correct' : 'trainer-wrong');
+        elA.classList.add(aIsPhish ? 'trainer-reveal' : 'trainer-correct');
+    }
+
+    if (correct) score++;
+    document.getElementById('trainer-score').textContent = score;
+    document.getElementById('trainer-total').textContent = current + 1;
+
+    // Show feedback
+    const fb = document.getElementById('trainer-feedback');
+    fb.style.display = 'block';
+    fb.className = 'trainer-feedback ' + (correct ? 'trainer-feedback-correct' : 'trainer-feedback-wrong');
+    fb.innerHTML = correct
+        ? `<strong>Correct!</strong> ${s.explain}`
+        : `<strong>Not quite.</strong> ${s.explain}`;
+
+    // Show next button
+    const nextBtn = document.getElementById('trainer-next-btn');
+    nextBtn.style.display = '';
+    nextBtn.textContent = current < SCENARIOS.length - 1 ? 'Next' : 'See Results';
+}
+
+function getScenarioData(s, isPhish) {
+    return isPhish ? (s.phish === 'a' ? s.a : s.b) : (s.phish === 'a' ? s.b : s.a);
+}
+
+document.getElementById('trainer-next-btn').addEventListener('click', () => {
+    current++;
+    if (current >= SCENARIOS.length) {
+        // Done
+        document.getElementById('trainer-pair').style.display = 'none';
+        document.getElementById('trainer-feedback').style.display = 'none';
+        document.getElementById('trainer-next-btn').style.display = 'none';
+        document.getElementById('trainer-done').style.display = 'block';
+        document.getElementById('trainer-final-score').textContent = `${score} / ${SCENARIOS.length}`;
+    } else {
+        loadScenario();
+    }
+});
+
+trainerInit();
+</script>
+}
+

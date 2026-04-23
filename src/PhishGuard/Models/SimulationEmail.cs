@@ -10,6 +10,7 @@ public class SimulationEmail
     public DateTime? ClickedLinkAt { get; set; }
     public DateTime? ReportedAt { get; set; }
     public SimulationResult Result { get; set; } = SimulationResult.Pending;
+    public bool RequiresLoginQuiz { get; set; } = false;
 
     // Navigation
     public PhishingCampaign Campaign { get; set; } = null!;

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using PhishGuard.Data;
 using PhishGuard.Models.ViewModels;
 using PhishGuard.Services;
 using System.Security.Claims;
@@ -11,11 +13,15 @@ public class AccountController : Controller
 {
     private readonly AuthService _auth;
     private readonly IConfiguration _config;
+    private readonly OpenAiEmailGeneratorService _emailGenerator;
+    private readonly PhishGuardContext _db;
 
-    public AccountController(AuthService auth, IConfiguration config)
+    public AccountController(AuthService auth, IConfiguration config, OpenAiEmailGeneratorService emailGenerator, PhishGuardContext db)
     {
         _auth = auth;
         _config = config;
+        _emailGenerator = emailGenerator;
+        _db = db;
     }
 
     private bool UseClerk => !string.IsNullOrEmpty(
@@ -53,6 +59,22 @@ public class AccountController : Controller
         if (employee.Role == Models.EmployeeRole.Admin)
             return RedirectToAction("Index", "Admin");
 
+        // Auto-reseed inbox if no emails or last email is older than 1 hour
+        var lastEmail = await _db.Emails
+            .Where(e => e.RecipientId == employee.EmployeeId)
+            .OrderByDescending(e => e.ReceivedAt)
+            .FirstOrDefaultAsync();
+        if (lastEmail == null || lastEmail.ReceivedAt < DateTime.UtcNow.AddHours(-1))
+            await _emailGenerator.SeedEmailsForUserAsync(employee.EmployeeId, employee.DisplayName, employee.Email);
+
+        // Check for pending login quiz
+        var pendingQuiz = await _db.SimulationEmails
+            .AnyAsync(s => s.TargetEmployeeId == employee.EmployeeId
+                        && s.RequiresLoginQuiz
+                        && s.Result == Models.SimulationResult.Pending);
+        if (pendingQuiz)
+            return RedirectToAction("QuizGate", "Training");
+
         return RedirectToAction("Index", "Dashboard");
     }
 
@@ -84,6 +106,10 @@ public class AccountController : Controller
         }
 
         await SignInAsync(employee);
+
+        // Seed initial inbox for new employee
+        await _emailGenerator.SeedEmailsForUserAsync(employee.EmployeeId, employee.DisplayName, employee.Email);
+
         return RedirectToAction("Index", "Dashboard");
     }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhishGuard.Data;
 
@@ -11,9 +12,11 @@ using PhishGuard.Data;
 namespace PhishGuard.Migrations
 {
     [DbContext(typeof(PhishGuardContext))]
-    partial class PhishGuardContextModelSnapshot : ModelSnapshot
+    [Migration("20260415203411_AddRequiresLoginQuiz")]
+    partial class AddRequiresLoginQuiz
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,8 +264,7 @@ namespace PhishGuard.Migrations
                     b.HasKey("EmployeeId");
 
                     b.HasIndex("ClerkUserId")
-                        .IsUnique()
-                        .HasFilter("`ClerkUserId` IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -696,36 +698,6 @@ namespace PhishGuard.Migrations
                     b.ToTable("ThreatIndicators");
                 });
 
-            modelBuilder.Entity("PhishGuard.Models.TrustedDomain", b =>
-                {
-                    b.Property<int>("TrustedDomainId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TrustedDomainId"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Domain")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.HasKey("TrustedDomainId");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("TrustedDomains");
-                });
-
             modelBuilder.Entity("PhishGuard.Models.Email", b =>
                 {
                     b.HasOne("PhishGuard.Models.Employee", "Recipient")
@@ -833,17 +805,6 @@ namespace PhishGuard.Migrations
                     b.Navigation("Campaign");
 
                     b.Navigation("TargetEmployee");
-                });
-
-            modelBuilder.Entity("PhishGuard.Models.TrustedDomain", b =>
-                {
-                    b.HasOne("PhishGuard.Models.Employee", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("PhishGuard.Models.Email", b =>

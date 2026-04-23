@@ -91,6 +91,7 @@ builder.Services.AddScoped<TrainingService>();
 builder.Services.AddScoped<LinkAnalysisService>();
 builder.Services.AddScoped<AiPhishScoreService>();
 builder.Services.AddScoped<PhishingGeneratorService>();
+builder.Services.AddScoped<OpenAiEmailGeneratorService>();
 builder.Services.AddScoped<IScoringDimension, ThreatFeedScorer>();
 builder.Services.AddScoped<IScoringDimension, LanguageAnalysisScorer>();
 builder.Services.AddScoped<IScoringDimension, DomainReputationScorer>();

@@ -18,6 +18,7 @@ public class PhishGuardContext : DbContext
     public DbSet<SimulationEmail> SimulationEmails => Set<SimulationEmail>();
     public DbSet<EmployeeTraining> EmployeeTrainings => Set<EmployeeTraining>();
     public DbSet<DailyMetric> DailyMetrics => Set<DailyMetric>();
+    public DbSet<TrustedDomain> TrustedDomains => Set<TrustedDomain>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,7 +27,7 @@ public class PhishGuardContext : DbContext
         {
             e.HasKey(x => x.EmployeeId);
             e.HasIndex(x => x.Email).IsUnique();
-            e.HasIndex(x => x.ClerkUserId).IsUnique();
+            e.HasIndex(x => x.ClerkUserId).IsUnique().HasFilter("`ClerkUserId` IS NOT NULL");
         });
 
         // Email
