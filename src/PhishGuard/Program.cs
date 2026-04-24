@@ -15,6 +15,11 @@ DotNetEnv.Env.TraversePath().Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Railway injects PORT — bind to it so the app is reachable
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Database — prefer env var, fall back to appsettings
 var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
     ?? builder.Configuration.GetConnectionString("DefaultConnection")
@@ -107,13 +112,15 @@ builder.Services.AddControllersWithViews()
 
 var app = builder.Build();
 
-// Seed default admin account
+// Auto-migrate and seed on startup
 using (var scope = app.Services.CreateScope())
 {
+    var db = scope.ServiceProvider.GetRequiredService<PhishGuardContext>();
+    db.Database.Migrate();
+
     var auth = scope.ServiceProvider.GetRequiredService<AuthService>();
     await auth.SeedAdminAsync();
 
-    var db = scope.ServiceProvider.GetRequiredService<PhishGuardContext>();
     var admin = await db.Employees.FirstAsync(e => e.Role == PhishGuard.Models.EmployeeRole.Admin);
     var training = scope.ServiceProvider.GetRequiredService<TrainingService>();
     await training.SeedCampaignsAsync(admin.EmployeeId);
